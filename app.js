@@ -205,6 +205,20 @@
     container.innerHTML = lines.join("<br>");
   }
 
+  function getActivitySlug(type) {
+    if (!type) return "sightsee";
+    const t = type.toLowerCase();
+    if (t.indexOf("dinner") !== -1 || t.indexOf("food") !== -1 || t.indexOf("market") !== -1) return "food";
+    if (t.indexOf("temple") !== -1 || t.indexOf("shrine") !== -1 || t.indexOf("tea ceremony") !== -1 || t.indexOf("sake") !== -1 || t.indexOf("garden") !== -1 || t.indexOf("venue") !== -1 || t.indexOf("event") !== -1) return "culture";
+    if (t.indexOf("train") !== -1 || t.indexOf("shinkansen") !== -1 || t.indexOf("pass") !== -1 || t.indexOf("arrive") !== -1) return "transport";
+    if (t.indexOf("bar") !== -1 || t.indexOf("soul") !== -1 || t.indexOf("vinyl") !== -1 || t.indexOf("night") !== -1) return "nightlife";
+    if (t.indexOf("shopping") !== -1 || t.indexOf("record store") !== -1 || t.indexOf("denim") !== -1 || t.indexOf("area") !== -1 || t.indexOf("district") !== -1) return "shopping";
+    if (t.indexOf("hotel") !== -1 || t.indexOf("onsen") !== -1) return "stay";
+    if (t.indexOf("relax") !== -1 || t.indexOf("optional") !== -1 || t.indexOf("easy pace") !== -1) return "relax";
+    if (t.indexOf("walk") !== -1 || t.indexOf("see") !== -1 || t.indexOf("visit") !== -1 || t.indexOf("activities") !== -1) return "sightsee";
+    return "sightsee";
+  }
+
   function getVenueCategory(categoryId) {
     return (DATA.venueCategories || []).find(function (c) { return c.id === categoryId; });
   }
@@ -232,8 +246,9 @@
       (selectedVenue.phone ? "<p class=\"venue-phone\">" + escapeHtml(selectedVenue.phone) + "</p>" : "") +
       "<p class=\"venue-verify\"><a href=\"" + googleUrl + "\" target=\"_blank\" rel=\"noopener\">Verify address & hours on Google</a></p>" +
       "</div>";
+    const activitySlug = cat.id.indexOf("restaurant") !== -1 ? "food" : "nightlife";
     return (
-      "<li class=\"day-block-item-venue\">" +
+      "<li class=\"day-block-item-venue activity activity-" + activitySlug + "\">" +
       "<span class=\"venue-type\">" + escapeHtml(item.type || "Venue") + ":</span> " +
       selectHtml +
       detailsHtml +
@@ -279,16 +294,19 @@
           const items = day[slot];
           if (!items || !items.length) return;
           const title = slot.charAt(0).toUpperCase() + slot.slice(1);
+          const slotClass = "day-slot-" + slot;
+          const slotLabel = slot === "morning" ? "Morning" : slot === "afternoon" ? "Afternoon" : slot === "evening" ? "Evening" : "Night";
           const list = items
             .map(function (item, index) {
               if (item.venueCategory && item.venueId) {
                 return buildVenueItemHtml(day.day, slot, index, item);
               }
+              const slug = getActivitySlug(item.type);
               const label = item.type ? item.type + ": " : "";
-              return "<li>" + escapeHtml(label) + escapeHtml(item.text) + "</li>";
+              return "<li class=\"activity activity-" + slug + "\">" + escapeHtml(label) + escapeHtml(item.text) + "</li>";
             })
             .join("");
-          blocks.push('<div class="day-block"><p class="day-block-title">' + title + "</p><ul class=\"day-block-items\">" + list + "</ul></div>");
+          blocks.push('<div class="day-block ' + slotClass + '"><p class="day-block-title">' + slotLabel + "</p><ul class=\"day-block-items\">" + list + "</ul></div>");
         });
 
         let notesHtml = "";

@@ -10,11 +10,13 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: var(--bg);
 }
 
 .access-gate-title {
   font-size: 1.75rem;
   margin: 0 0 0.5rem;
+  color: var(--text);
 }
 
 .access-gate-hint {
@@ -33,7 +35,7 @@
   padding: 0.65rem 1rem;
   font-size: 1rem;
   font-family: var(--font);
-  background: var(--surface);
+  background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
@@ -55,21 +57,30 @@
 }
 
 :root {
-  --bg: #0f0f14;
-  --surface: #1a1a2e;
-  --card: #232338;
-  --text: #e8e8ed;
-  --text-muted: #9a9ab0;
-  --accent: #e94560;
-  --accent-soft: rgba(233, 69, 96, 0.15);
-  --success: #2eb872;
-  --border: #2d2d44;
+  --bg: #f5f3f0;
+  --surface: #fff;
+  --card: #fff;
+  --text: #2c2c2c;
+  --text-muted: #5c5c5c;
+  --accent: #c45c26;
+  --accent-soft: rgba(196, 92, 38, 0.12);
+  --success: #1a7f37;
+  --border: #e0ddd8;
   --radius: 12px;
   --radius-sm: 8px;
   --font: "Outfit", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
+  /* Activity type colours */
+  --activity-food: #b85c38;
+  --activity-culture: #2d6a4f;
+  --activity-transport: #1d4e89;
+  --activity-nightlife: #6c2d70;
+  --activity-shopping: #8b6914;
+  --activity-stay: #0d6b6b;
+  --activity-relax: #5a6c3e;
+  --activity-sightsee: #5c4a2e;
 }
 
 *,
@@ -139,6 +150,7 @@ body {
   padding: 1.25rem;
   margin-bottom: 1rem;
   border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .card h2 {
@@ -172,7 +184,7 @@ body {
   padding: 0.5rem 0.6rem;
   font-family: var(--font-mono);
   font-size: 1rem;
-  background: var(--surface);
+  background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
@@ -301,7 +313,7 @@ body {
 }
 
 .map-layer {
-  background: var(--surface);
+  background: #faf9f7;
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
@@ -362,16 +374,18 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .day-header {
-  background: var(--surface);
+  background: linear-gradient(135deg, #e8e4de 0%, #f0ede8 100%);
   padding: 0.85rem 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .day-number {
@@ -408,21 +422,29 @@ body {
 }
 
 .day-block {
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .day-block:last-child {
   margin-bottom: 0;
 }
 
+/* Clearer part-of-day titles with distinct colours */
 .day-block-title {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  margin: 0 0 0.25rem;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.5rem;
+  padding: 0.35rem 0 0.35rem 0.6rem;
+  border-left: 3px solid var(--text-muted);
+  color: var(--text);
 }
+
+.day-slot-morning .day-block-title { border-left-color: #d4a054; color: #8b6914; }
+.day-slot-afternoon .day-block-title { border-left-color: #2d6a4f; color: #1b4332; }
+.day-slot-evening .day-block-title { border-left-color: #c45c26; color: #9a3e18; }
+.day-slot-night .day-block-title { border-left-color: #6c2d70; color: #4a1d4e; }
 
 .day-block-items {
   list-style: none;
@@ -432,8 +454,7 @@ body {
 
 .day-block-items li {
   font-size: 0.95rem;
-  padding: 0.2rem 0;
-  padding-left: 1rem;
+  padding: 0.28rem 0 0.28rem 1.15rem;
   position: relative;
 }
 
@@ -441,22 +462,32 @@ body {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.65em;
-  width: 4px;
-  height: 4px;
+  top: 0.7em;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--activity-sightsee);
 }
+
+/* Activity type colours – different colour per type */
+.day-block-items li.activity-food::before { background: var(--activity-food); }
+.day-block-items li.activity-culture::before { background: var(--activity-culture); }
+.day-block-items li.activity-transport::before { background: var(--activity-transport); }
+.day-block-items li.activity-nightlife::before { background: var(--activity-nightlife); }
+.day-block-items li.activity-shopping::before { background: var(--activity-shopping); }
+.day-block-items li.activity-stay::before { background: var(--activity-stay); }
+.day-block-items li.activity-relax::before { background: var(--activity-relax); }
+.day-block-items li.activity-sightsee::before { background: var(--activity-sightsee); }
 
 /* Venue dropdown – same category, nearby alternatives */
 .day-block-items li.day-block-item-venue {
   list-style: none;
-  padding-left: 0;
+  padding-left: 0.75rem;
   margin: 0.5rem 0 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 0.75rem;
-  background: var(--surface);
+  background: #faf9f7;
 }
 
 .day-block-items li.day-block-item-venue::before {
@@ -476,14 +507,14 @@ body {
   padding: 0.5rem 2rem 0.5rem 0.5rem;
   font-family: var(--font);
   font-size: 0.95rem;
-  background: var(--card);
+  background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
   margin-bottom: 0.5rem;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239a9ab0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235c5c5c' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
 }
@@ -537,7 +568,7 @@ body {
 .day-notes {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: var(--surface);
+  background: #faf9f7;
   border-radius: var(--radius-sm);
   border-left: 3px solid var(--accent);
   font-size: 0.9rem;

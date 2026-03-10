@@ -4,6 +4,6 @@
   "description": "Personal holiday itinerary",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f0f14",
-  "theme_color": "#1a1a2e"
+  "background_color": "#f5f3f0",
+  "theme_color": "#c45c26"
 }
