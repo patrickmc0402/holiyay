@@ -13,11 +13,22 @@
   background: var(--bg);
 }
 
-.access-gate-logo {
-  display: block;
+.access-gate-logo-wrap {
   margin: 0 auto 1rem;
-  max-width: 140px;
-  height: auto;
+  width: 100px;
+  height: 34px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.access-gate-logo {
+  width: auto;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center center;
 }
 
 .access-gate-title {
@@ -135,11 +146,22 @@ body {
   margin-bottom: 1rem;
 }
 
-.header-logo {
-  display: block;
+.header-logo-wrap {
   margin: 0 auto 1rem;
-  max-width: 160px;
-  height: auto;
+  width: 120px;
+  height: 40px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logo {
+  width: auto;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center center;
 }
 
 .trip-title {
@@ -355,30 +377,75 @@ body {
 }
 
 .dashboard-totals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 1.5rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border);
 }
 
+.dashboard-totals-grid {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.25rem 1rem;
+  align-items: center;
+  max-width: 28rem;
+}
+
+.dashboard-totals-header {
+  display: contents;
+}
+
+.dashboard-totals-header .dashboard-totals-label,
+.dashboard-totals-header .dashboard-totals-aud,
+.dashboard-totals-header .dashboard-totals-jpy {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboard-totals-header .dashboard-totals-aud { grid-column: 2; }
+.dashboard-totals-header .dashboard-totals-jpy { grid-column: 3; }
+
 .dashboard-total {
+  display: contents;
   font-size: 1rem;
 }
 
-.dashboard-total-label {
+.dashboard-total .dashboard-total-label {
+  grid-column: 1;
   color: var(--text-muted);
-  margin-right: 0.35rem;
 }
 
-.dashboard-total-paid .dashboard-total-value {
-  color: var(--success);
+.dashboard-total .dashboard-total-value {
+  grid-column: 2;
+  text-align: right;
+  font-weight: 600;
 }
 
-.dashboard-total-unpaid .dashboard-total-value {
-  color: var(--accent);
+.dashboard-total .dashboard-total-value-jpy {
+  grid-column: 3;
+  text-align: right;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text);
 }
+
+.dashboard-total-paid .dashboard-total-value { color: var(--success); }
+.dashboard-total-paid .dashboard-total-value-jpy { color: var(--success); }
+
+.dashboard-total-booked .dashboard-total-value { color: #1d4e89; }
+.dashboard-total-booked .dashboard-total-value-jpy { color: #1d4e89; }
+
+.dashboard-total-unpaid .dashboard-total-value { color: var(--accent); }
+.dashboard-total-unpaid .dashboard-total-value-jpy { color: var(--accent); }
+
+.dashboard-total-est .dashboard-total-label { font-weight: 600; color: var(--text); }
+.dashboard-total-est .dashboard-total-value,
+.dashboard-total-est .dashboard-total-value-jpy { border-top: 1px solid var(--border); padding-top: 0.35rem; margin-top: 0.15rem; }
 
 .dashboard-list {
   display: flex;
@@ -388,13 +455,14 @@ body {
 
 .dashboard-row {
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto auto;
   align-items: center;
-  gap: 0.5rem 0.75rem;
+  gap: 0.4rem 0.6rem;
   padding: 0.5rem 0.6rem;
   border-radius: var(--radius-sm);
   background: #faf9f7;
   border: 1px solid var(--border);
+  min-width: min(100%, 36rem);
 }
 
 .dashboard-row.is-paid {
@@ -402,29 +470,37 @@ body {
   border-color: rgba(26, 127, 55, 0.3);
 }
 
-.dashboard-toggle-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
+.dashboard-row.is-booked {
+  background: rgba(29, 78, 137, 0.08);
+  border-color: rgba(29, 78, 137, 0.3);
+}
+
+.dashboard-status-select {
+  padding: 0.35rem 0.5rem;
   font-size: 0.8rem;
   font-weight: 600;
-  margin: 0;
-}
-
-.dashboard-paid-toggle {
-  width: 1.1rem;
-  height: 1.1rem;
-  accent-color: var(--success);
+  font-family: var(--font);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--text);
   cursor: pointer;
+  min-width: 0;
 }
 
-.dashboard-toggle-label {
-  color: var(--text-muted);
+.dashboard-status-select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
-.dashboard-row.is-paid .dashboard-toggle-label {
+.dashboard-row.is-paid .dashboard-status-select {
+  border-color: rgba(26, 127, 55, 0.5);
   color: var(--success);
+}
+
+.dashboard-row.is-booked .dashboard-status-select {
+  border-color: rgba(29, 78, 137, 0.5);
+  color: #1d4e89;
 }
 
 .dashboard-row-label {
@@ -448,11 +524,16 @@ body {
 }
 
 .dashboard-amount-aud,
-.dashboard-amount-jpy {
-  width: 4.5rem;
-  padding: 0.35rem 0.4rem;
+.dashboard-amount-jpy,
+.dashboard-est-aud,
+.dashboard-est-jpy,
+.dashboard-final-aud,
+.dashboard-final-jpy {
+  width: 4rem;
+  min-width: 3.5rem;
+  padding: 0.3rem 0.35rem;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-align: right;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -460,14 +541,25 @@ body {
   color: var(--text);
 }
 
-.dashboard-amount-jpy {
-  width: 5.5rem;
+.dashboard-amount-jpy,
+.dashboard-est-jpy,
+.dashboard-final-jpy {
+  width: 4.5rem;
 }
 
 .dashboard-amount-aud:focus,
-.dashboard-amount-jpy:focus {
+.dashboard-amount-jpy:focus,
+.dashboard-est-aud:focus,
+.dashboard-est-jpy:focus,
+.dashboard-final-aud:focus,
+.dashboard-final-jpy:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.section-dashboard .dashboard-list {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Flights */
@@ -546,6 +638,11 @@ body {
 .reminder-badge-paid {
   background: rgba(26, 127, 55, 0.2);
   color: var(--success);
+}
+
+.reminder-badge-booked {
+  background: rgba(29, 78, 137, 0.15);
+  color: #1d4e89;
 }
 
 .reminder-badge-unpaid {

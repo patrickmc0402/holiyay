@@ -19,7 +19,7 @@
   function showAccessGate() {
     document.body.innerHTML =
       "<div class=\"app access-gate\">" +
-      "<img src=\"Holiyay%20Logo%20with%20Coral%20Circle%20and%20Gradient%20Text.png\" alt=\"Holiyay\" class=\"access-gate-logo\" />" +
+      "<div class=\"access-gate-logo-wrap\"><img src=\"Holiyay%20Logo%20with%20Coral%20Circle%20and%20Gradient%20Text.png\" alt=\"Holiyay\" class=\"access-gate-logo\" /></div>" +
       "<h1 class=\"access-gate-title\">Holiyay</h1>" +
       "<p class=\"access-gate-hint\">Enter the password to view this itinerary.</p>" +
       "<form id=\"access-form\" class=\"access-gate-form\">" +
@@ -129,7 +129,11 @@
 
   function setBookableState(id, state) {
     const o = getBookablesState();
-    o[id] = state;
+    o[id] = {
+      status: state.status,
+      amount: state.amount,
+      estimatedAmount: state.estimatedAmount != null && !Number.isNaN(state.estimatedAmount) ? state.estimatedAmount : 0,
+    };
     try {
       localStorage.setItem(BOOKABLES_STORAGE_KEY, JSON.stringify(o));
     } catch (e) {}
@@ -141,9 +145,18 @@
     const st = o[id];
     const bookable = (DATA.bookables || []).find(function (b) { return b.id === id; });
     const defaultAUD = bookable ? bookable.defaultAUD : 0;
+    var status = "unpaid";
+    if (st) {
+      if (st.status === "paid" || st.status === "booked") status = st.status;
+      else if (st.paid === true) status = "paid";
+    }
+    var amount = st && typeof st.amount === "number" && !Number.isNaN(st.amount) ? st.amount : defaultAUD;
+    var estimatedAmount = st && typeof st.estimatedAmount === "number" && !Number.isNaN(st.estimatedAmount) ? st.estimatedAmount : 0;
     return {
-      paid: st && typeof st.paid === "boolean" ? st.paid : false,
-      amount: st && typeof st.amount === "number" && !Number.isNaN(st.amount) ? st.amount : defaultAUD,
+      status: status,
+      paid: status === "paid",
+      amount: amount,
+      estimatedAmount: estimatedAmount,
     };
   }
 
@@ -244,6 +257,11 @@
     return "AUD $" + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
+  function formatJpy(amount) {
+    if (amount == null) return "";
+    return "¥" + Math.round(amount).toLocaleString();
+  }
+
   function formatDate(iso) {
     const d = new Date(iso + "T12:00:00");
     const options = { day: "numeric", month: "short", year: "numeric" };
@@ -267,16 +285,26 @@
     const totalsEl = document.getElementById("dashboard-totals");
     if (!totalsEl) return;
     const bookables = DATA.bookables || [];
+    const r = getStoredRate();
     let paidTotal = 0;
+    let bookedTotal = 0;
     let unpaidTotal = 0;
+    let estimatedTotal = 0;
     bookables.forEach(function (b) {
       const st = getBookableState(b.id);
-      if (st.paid) paidTotal += st.amount;
+      if (st.status === "paid") paidTotal += st.amount;
+      else if (st.status === "booked") bookedTotal += st.amount;
       else unpaidTotal += st.amount;
+      estimatedTotal += st.estimatedAmount || 0;
     });
     totalsEl.innerHTML =
-      "<div class=\"dashboard-total dashboard-total-paid\"><span class=\"dashboard-total-label\">Paid</span> <strong class=\"dashboard-total-value\">" + formatAud(paidTotal) + "</strong></div>" +
-      "<div class=\"dashboard-total dashboard-total-unpaid\"><span class=\"dashboard-total-label\">Unpaid</span> <strong class=\"dashboard-total-value\">" + formatAud(unpaidTotal) + "</strong></div>";
+      "<div class=\"dashboard-totals-grid\">" +
+      "<div class=\"dashboard-totals-header\"><span class=\"dashboard-totals-label\"></span><span class=\"dashboard-totals-aud\">AUD</span><span class=\"dashboard-totals-jpy\">JPY</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-paid\"><span class=\"dashboard-total-label\">Paid</span><span class=\"dashboard-total-value\">" + formatAud(paidTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(paidTotal)) + "</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-booked\"><span class=\"dashboard-total-label\">Booked (not paid)</span><span class=\"dashboard-total-value\">" + formatAud(bookedTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(bookedTotal)) + "</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-unpaid\"><span class=\"dashboard-total-label\">Unpaid</span><span class=\"dashboard-total-value\">" + formatAud(unpaidTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(unpaidTotal)) + "</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-est\"><span class=\"dashboard-total-label\">Estimated total</span><span class=\"dashboard-total-value\">" + formatAud(estimatedTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(estimatedTotal)) + "</span></div>" +
+      "</div>";
   }
 
   function renderDashboard() {
@@ -286,30 +314,44 @@
     const bookables = DATA.bookables || [];
     const r = getStoredRate();
     let paidTotal = 0;
+    let bookedTotal = 0;
     let unpaidTotal = 0;
+    let estimatedTotal = 0;
     const rows = bookables.map(function (b) {
       const st = getBookableState(b.id);
-      if (st.paid) paidTotal += st.amount;
+      if (st.status === "paid") paidTotal += st.amount;
+      else if (st.status === "booked") bookedTotal += st.amount;
       else unpaidTotal += st.amount;
-      const checked = st.paid ? " checked" : "";
-      const paidClass = st.paid ? " is-paid" : "";
-      const audVal = st.amount === 0 ? "" : String(st.amount);
-      const jpyVal = st.amount === 0 ? "" : String(audToJpy(st.amount) != null ? audToJpy(st.amount) : "");
+      estimatedTotal += st.estimatedAmount || 0;
+      const statusClass = st.status === "paid" ? " is-paid" : st.status === "booked" ? " is-booked" : "";
+      const estAudVal = (st.estimatedAmount == null || st.estimatedAmount === 0) ? "" : String(st.estimatedAmount);
+      const estJpyVal = (st.estimatedAmount == null || st.estimatedAmount === 0) ? "" : String(audToJpy(st.estimatedAmount) != null ? audToJpy(st.estimatedAmount) : "");
+      const finalAudVal = st.amount === 0 ? "" : String(st.amount);
+      const finalJpyVal = st.amount === 0 ? "" : String(audToJpy(st.amount) != null ? audToJpy(st.amount) : "");
+      const statusOpts = [
+        "<option value=\"unpaid\"" + (st.status === "unpaid" ? " selected" : "") + ">Unpaid</option>",
+        "<option value=\"booked\"" + (st.status === "booked" ? " selected" : "") + ">Booked (not paid)</option>",
+        "<option value=\"paid\"" + (st.status === "paid" ? " selected" : "") + ">Paid</option>",
+      ].join("");
       return (
-        "<div class=\"dashboard-row" + paidClass + "\" data-bookable-id=\"" + escapeHtml(b.id) + "\">" +
-        "<label class=\"dashboard-toggle-wrap\">" +
-        "<input type=\"checkbox\" class=\"dashboard-paid-toggle\" data-id=\"" + escapeHtml(b.id) + "\" aria-label=\"Mark as paid\"" + checked + " />" +
-        "<span class=\"dashboard-toggle-label\">" + (st.paid ? "Paid" : "Unpaid") + "</span>" +
-        "</label>" +
+        "<div class=\"dashboard-row" + statusClass + "\" data-bookable-id=\"" + escapeHtml(b.id) + "\">" +
+        "<select class=\"dashboard-status-select\" data-id=\"" + escapeHtml(b.id) + "\" aria-label=\"Status\">" + statusOpts + "</select>" +
         "<span class=\"dashboard-row-label\">" + escapeHtml(b.label) + "</span>" +
-        "<span class=\"dashboard-amount-wrap\"><span class=\"dashboard-col-label\">AUD</span><input type=\"number\" class=\"dashboard-amount-aud\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + escapeHtml(audVal) + "\" placeholder=\"0\" min=\"0\" step=\"any\" aria-label=\"Amount AUD\" /></span>" +
-        "<span class=\"dashboard-amount-wrap\"><span class=\"dashboard-col-label\">JPY</span><input type=\"number\" class=\"dashboard-amount-jpy\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + escapeHtml(jpyVal) + "\" placeholder=\"0\" min=\"0\" step=\"1\" aria-label=\"Amount JPY\" /></span>" +
+        "<span class=\"dashboard-amount-wrap\"><span class=\"dashboard-col-label\">Est. AUD</span><input type=\"number\" class=\"dashboard-est-aud\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + escapeHtml(estAudVal) + "\" placeholder=\"0\" min=\"0\" step=\"any\" aria-label=\"Estimated AUD\" /></span>" +
+        "<span class=\"dashboard-amount-wrap\"><span class=\"dashboard-col-label\">Est. JPY</span><input type=\"number\" class=\"dashboard-est-jpy\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + escapeHtml(estJpyVal) + "\" placeholder=\"0\" min=\"0\" step=\"1\" aria-label=\"Estimated JPY\" /></span>" +
+        "<span class=\"dashboard-amount-wrap\"><span class=\"dashboard-col-label\">Final AUD</span><input type=\"number\" class=\"dashboard-final-aud\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + escapeHtml(finalAudVal) + "\" placeholder=\"0\" min=\"0\" step=\"any\" aria-label=\"Final AUD\" /></span>" +
+        "<span class=\"dashboard-amount-wrap\"><span class=\"dashboard-col-label\">Final JPY</span><input type=\"number\" class=\"dashboard-final-jpy\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + escapeHtml(finalJpyVal) + "\" placeholder=\"0\" min=\"0\" step=\"1\" aria-label=\"Final JPY\" /></span>" +
         "</div>"
       );
     }).join("");
     totalsEl.innerHTML =
-      "<div class=\"dashboard-total dashboard-total-paid\"><span class=\"dashboard-total-label\">Paid</span> <strong class=\"dashboard-total-value\">" + formatAud(paidTotal) + "</strong></div>" +
-      "<div class=\"dashboard-total dashboard-total-unpaid\"><span class=\"dashboard-total-label\">Unpaid</span> <strong class=\"dashboard-total-value\">" + formatAud(unpaidTotal) + "</strong></div>";
+      "<div class=\"dashboard-totals-grid\">" +
+      "<div class=\"dashboard-totals-header\"><span class=\"dashboard-totals-label\"></span><span class=\"dashboard-totals-aud\">AUD</span><span class=\"dashboard-totals-jpy\">JPY</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-paid\"><span class=\"dashboard-total-label\">Paid</span><span class=\"dashboard-total-value\">" + formatAud(paidTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(paidTotal)) + "</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-booked\"><span class=\"dashboard-total-label\">Booked (not paid)</span><span class=\"dashboard-total-value\">" + formatAud(bookedTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(bookedTotal)) + "</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-unpaid\"><span class=\"dashboard-total-label\">Unpaid</span><span class=\"dashboard-total-value\">" + formatAud(unpaidTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(unpaidTotal)) + "</span></div>" +
+      "<div class=\"dashboard-total dashboard-total-est\"><span class=\"dashboard-total-label\">Estimated total</span><span class=\"dashboard-total-value\">" + formatAud(estimatedTotal) + "</span><span class=\"dashboard-total-value-jpy\">" + formatJpy(audToJpy(estimatedTotal)) + "</span></div>" +
+      "</div>";
     listEl.innerHTML = rows;
   }
 
@@ -473,7 +515,9 @@
         const urgent = !isPast && daysLeft <= 30;
         const note = r.notes ? " · " + r.notes : "";
         const st = getBookableState(r.id);
-        const paidBadge = st.paid ? '<span class="reminder-badge reminder-badge-paid">Paid</span>' : '<span class="reminder-badge reminder-badge-unpaid">Unpaid</span>';
+        var paidBadge = '<span class="reminder-badge reminder-badge-unpaid">Unpaid</span>';
+        if (st.status === "paid") paidBadge = '<span class="reminder-badge reminder-badge-paid">Paid</span>';
+        else if (st.status === "booked") paidBadge = '<span class="reminder-badge reminder-badge-booked">Booked</span>';
         return (
           '<li class="reminder-item">' +
           '<span class="reminder-label">' + paidBadge + " " + escapeHtml(r.label) + "</span>" +
@@ -669,42 +713,87 @@
     if (!el) return;
     var id = el.getAttribute("data-id");
     if (!id) return;
-    if (el.classList && el.classList.contains("dashboard-paid-toggle")) {
+    if (el.classList && el.classList.contains("dashboard-status-select")) {
       var state = getBookableState(id);
-      state.paid = el.checked;
+      state.status = el.value;
       setBookableState(id, state);
-      renderDashboard();
+      var row = el.closest(".dashboard-row");
+      if (row) {
+        row.classList.remove("is-paid", "is-booked");
+        if (el.value === "paid") row.classList.add("is-paid");
+        else if (el.value === "booked") row.classList.add("is-booked");
+      }
+      updateDashboardTotalsOnly();
       renderReminders();
       return;
     }
     var r = getStoredRate();
-    if (el.classList && el.classList.contains("dashboard-amount-aud")) {
+    var row = el.closest(".dashboard-row");
+    function syncPeerAndTotals(state, isEstimated) {
+      setBookableState(id, state);
+      if (row) {
+        if (isEstimated) {
+          var estAud = row.querySelector(".dashboard-est-aud");
+          var estJpy = row.querySelector(".dashboard-est-jpy");
+          if (estAud) estAud.value = state.estimatedAmount === 0 ? "" : (state.estimatedAmount % 1 === 0 ? String(state.estimatedAmount) : state.estimatedAmount.toFixed(2));
+          if (estJpy) estJpy.value = state.estimatedAmount === 0 ? "" : String(audToJpy(state.estimatedAmount) != null ? audToJpy(state.estimatedAmount) : "");
+        } else {
+          var finalAud = row.querySelector(".dashboard-final-aud");
+          var finalJpy = row.querySelector(".dashboard-final-jpy");
+          if (finalAud) finalAud.value = state.amount === 0 ? "" : (state.amount % 1 === 0 ? String(state.amount) : state.amount.toFixed(2));
+          if (finalJpy) finalJpy.value = state.amount === 0 ? "" : String(audToJpy(state.amount) != null ? audToJpy(state.amount) : "");
+        }
+      }
+      updateDashboardTotalsOnly();
+    }
+    if (el.classList && el.classList.contains("dashboard-est-aud")) {
+      var num = parseFloat(String(el.value).replace(",", "."), 10);
+      if (Number.isNaN(num)) num = 0;
+      var state = getBookableState(id);
+      state.estimatedAmount = num;
+      if (row) {
+        var jpyInput = row.querySelector(".dashboard-est-jpy");
+        if (jpyInput) jpyInput.value = num === 0 ? "" : (audToJpy(num) != null ? String(audToJpy(num)) : "");
+      }
+      syncPeerAndTotals(state, true);
+      return;
+    }
+    if (el.classList && el.classList.contains("dashboard-est-jpy")) {
+      var num = parseFloat(String(el.value).replace(",", "."), 10);
+      if (Number.isNaN(num)) num = 0;
+      var aud = num === 0 ? 0 : num / r;
+      var state = getBookableState(id);
+      state.estimatedAmount = aud;
+      if (row) {
+        var audInput = row.querySelector(".dashboard-est-aud");
+        if (audInput) audInput.value = aud === 0 ? "" : (aud % 1 === 0 ? String(aud) : aud.toFixed(2));
+      }
+      syncPeerAndTotals(state, true);
+      return;
+    }
+    if (el.classList && el.classList.contains("dashboard-final-aud")) {
       var num = parseFloat(String(el.value).replace(",", "."), 10);
       if (Number.isNaN(num)) num = 0;
       var state = getBookableState(id);
       state.amount = num;
-      setBookableState(id, state);
-      var row = el.closest(".dashboard-row");
       if (row) {
-        var jpyInput = row.querySelector(".dashboard-amount-jpy");
+        var jpyInput = row.querySelector(".dashboard-final-jpy");
         if (jpyInput) jpyInput.value = num === 0 ? "" : (audToJpy(num) != null ? String(audToJpy(num)) : "");
       }
-      updateDashboardTotalsOnly();
+      syncPeerAndTotals(state, false);
       return;
     }
-    if (el.classList && el.classList.contains("dashboard-amount-jpy")) {
+    if (el.classList && el.classList.contains("dashboard-final-jpy")) {
       var num = parseFloat(String(el.value).replace(",", "."), 10);
       if (Number.isNaN(num)) num = 0;
       var aud = num === 0 ? 0 : num / r;
       var state = getBookableState(id);
       state.amount = aud;
-      setBookableState(id, state);
-      var row = el.closest(".dashboard-row");
       if (row) {
-        var audInput = row.querySelector(".dashboard-amount-aud");
+        var audInput = row.querySelector(".dashboard-final-aud");
         if (audInput) audInput.value = aud === 0 ? "" : (aud % 1 === 0 ? String(aud) : aud.toFixed(2));
       }
-      updateDashboardTotalsOnly();
+      syncPeerAndTotals(state, false);
       return;
     }
   }
