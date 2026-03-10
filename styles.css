@@ -374,7 +374,7 @@ body {
 
 .dashboard-row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 0.5rem 0.75rem;
   padding: 0.5rem 0.6rem;
@@ -421,16 +421,21 @@ body {
 .dashboard-amount-wrap {
   display: inline-flex;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.25rem;
 }
 
-.dashboard-currency {
-  font-size: 0.9rem;
+.dashboard-col-label {
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  min-width: 2.5rem;
 }
 
-.dashboard-amount {
-  width: 5rem;
+.dashboard-amount-aud,
+.dashboard-amount-jpy {
+  width: 4.5rem;
   padding: 0.35rem 0.4rem;
   font-family: var(--font-mono);
   font-size: 0.9rem;
@@ -441,7 +446,12 @@ body {
   color: var(--text);
 }
 
-.dashboard-amount:focus {
+.dashboard-amount-jpy {
+  width: 5.5rem;
+}
+
+.dashboard-amount-aud:focus,
+.dashboard-amount-jpy:focus {
   outline: none;
   border-color: var(--accent);
 }
