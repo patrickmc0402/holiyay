@@ -86,6 +86,7 @@
 
   const VENUE_STORAGE_PREFIX = "holiyay_venue_";
   const BOOKABLES_STORAGE_KEY = "holiyay_bookables";
+  const NOTES_STORAGE_KEY = "holiyay_trip_notes";
 
   function getStoredRate() {
     const s = localStorage.getItem(STORAGE_KEY);
@@ -168,10 +169,15 @@
         if (k && k.indexOf(VENUE_STORAGE_PREFIX) === 0) venues[k] = localStorage.getItem(k);
       }
     } catch (e) {}
+    var notes = "";
+    try {
+      notes = localStorage.getItem(NOTES_STORAGE_KEY) || "";
+    } catch (e) {}
     return {
       bookables: getBookablesState(),
       rate: getStoredRate(),
       venues: venues,
+      notes: notes,
     };
   }
 
@@ -190,6 +196,11 @@
             localStorage.setItem(k, state.venues[k]);
           }
         }
+      }
+      if (typeof state.notes === "string") {
+        localStorage.setItem(NOTES_STORAGE_KEY, state.notes);
+        var notesEl = document.getElementById("trip-notes");
+        if (notesEl) notesEl.value = state.notes;
       }
     } catch (e) {}
   }
@@ -549,6 +560,20 @@
         (transport.jpy ? " <span class=\"jpy\">(¥" + transport.jpy.toLocaleString() + ")</span>" : "");
     }
     if (notesEl && transport.notes) notesEl.textContent = transport.notes;
+
+    const travelTimesEl = document.getElementById("budget-travel-times");
+    const travelTimes = DATA.travelTimes || [];
+    if (travelTimesEl && travelTimes.length > 0) {
+      travelTimesEl.innerHTML =
+        "<p class=\"budget-travel-times-title\">Estimated travel times between cities</p>" +
+        "<ul class=\"budget-travel-times-list\">" +
+        travelTimes.map(function (t) {
+          return "<li><span class=\"travel-times-route\">" + escapeHtml(t.route) + "</span> " +
+            "<span class=\"travel-times-duration\">" + escapeHtml(t.duration) + "</span>" +
+            (t.how ? " <span class=\"travel-times-how\">(" + escapeHtml(t.how) + ")</span>" : "") + "</li>";
+        }).join("") +
+        "</ul>";
+    }
   }
 
   function renderDayCosts() {
@@ -646,7 +671,8 @@
               }
               const slug = getActivitySlug(item.type);
               const label = item.type ? item.type + ": " : "";
-              return "<li class=\"activity activity-" + slug + "\">" + escapeHtml(label) + escapeHtml(item.text) + "</li>";
+              const travelTimeHtml = item.travelTime ? " <span class=\"travel-time\">" + escapeHtml(item.travelTime) + "</span>" : "";
+              return "<li class=\"activity activity-" + slug + "\">" + escapeHtml(label) + escapeHtml(item.text) + travelTimeHtml + "</li>";
             })
             .join("");
           blocks.push('<div class="day-block ' + slotClass + '"><p class="day-block-title">' + slotLabel + "</p><ul class=\"day-block-items\">" + list + "</ul></div>");
@@ -819,6 +845,18 @@
     document.body.addEventListener("change", onVenueSelectChange);
     document.body.addEventListener("change", onDashboardChange);
     document.body.addEventListener("input", onDashboardChange);
+    var notesEl = document.getElementById("trip-notes");
+    if (notesEl) {
+      try {
+        notesEl.value = localStorage.getItem(NOTES_STORAGE_KEY) || "";
+      } catch (e) {}
+      notesEl.addEventListener("input", function () {
+        try {
+          localStorage.setItem(NOTES_STORAGE_KEY, notesEl.value);
+        } catch (e) {}
+        saveSharedStateDebounced();
+      });
+    }
   }
 
   (function run() {

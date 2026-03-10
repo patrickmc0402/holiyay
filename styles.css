@@ -562,6 +562,63 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Dashboard: mobile layout – 2-column stacked so table fits */
+@media (max-width: 640px) {
+  .dashboard-totals-grid {
+    max-width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .dashboard-totals-header .dashboard-totals-label,
+  .dashboard-totals-header .dashboard-totals-aud,
+  .dashboard-totals-header .dashboard-totals-jpy {
+    font-size: 0.7rem;
+  }
+
+  .dashboard-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.5rem 0.75rem;
+    min-width: 0;
+  }
+
+  .dashboard-status-select {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .dashboard-row-label {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 0.85rem;
+    word-break: break-word;
+  }
+
+  .dashboard-amount-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+
+  .dashboard-row .dashboard-amount-wrap:nth-child(3) { grid-column: 1; grid-row: 2; }
+  .dashboard-row .dashboard-amount-wrap:nth-child(4) { grid-column: 2; grid-row: 2; }
+  .dashboard-row .dashboard-amount-wrap:nth-child(5) { grid-column: 1; grid-row: 3; }
+  .dashboard-row .dashboard-amount-wrap:nth-child(6) { grid-column: 2; grid-row: 3; }
+
+  .dashboard-col-label {
+    min-width: 0;
+  }
+
+  .dashboard-est-aud,
+  .dashboard-est-jpy,
+  .dashboard-final-aud,
+  .dashboard-final-jpy {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}
+
 /* Flights */
 .section-flights h2 {
   margin-bottom: 0.75rem;
@@ -592,6 +649,42 @@ body {
 
 .calendar-actions {
   margin: 0;
+}
+
+/* Recommendations & notes */
+.section-notes h2 {
+  margin-bottom: 0.5rem;
+}
+
+.notes-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+#trip-notes {
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.75rem;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+#trip-notes:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#trip-notes::placeholder {
+  color: var(--text-muted);
 }
 
 /* Reminders */
@@ -681,6 +774,45 @@ body {
   font-size: 0.85rem;
   color: var(--text-muted);
   margin: 0 0 0.75rem;
+}
+
+.budget-travel-times {
+  margin-bottom: 1rem;
+}
+
+.budget-travel-times-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.4rem;
+}
+
+.budget-travel-times-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.budget-travel-times-list li {
+  padding: 0.2rem 0;
+  color: var(--text);
+}
+
+.travel-times-route {
+  font-weight: 500;
+}
+
+.travel-times-duration {
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
+.travel-times-how {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-left: 0.2rem;
 }
 
 .budget-day-costs {
@@ -816,6 +948,13 @@ body {
 .day-block-items li.activity-stay::before { background: var(--activity-stay); }
 .day-block-items li.activity-relax::before { background: var(--activity-relax); }
 .day-block-items li.activity-sightsee::before { background: var(--activity-sightsee); }
+
+.travel-time {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
 
 /* Venue dropdown – same category, nearby alternatives */
 .day-block-items li.day-block-item-venue {

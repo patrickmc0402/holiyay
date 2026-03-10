@@ -73,6 +73,16 @@ window.HOLIYAY_DATA = {
     notes: "Hakone Free Pass, IC card, individual Shinkansen. JR Pass would cost nearly double.",
   },
 
+  /** Estimated travel times between cities (for planning). Shown in itinerary and below. */
+  travelTimes: [
+    { route: "Tokyo → Hakone", duration: "~1h 30m", how: "Romancecar" },
+    { route: "Odawara → Kyoto", duration: "~2h", how: "Shinkansen" },
+    { route: "Kyoto → Osaka", duration: "~30 min", how: "JR Kyoto Line" },
+    { route: "Osaka ↔ Nara", duration: "~45 min", how: "JR Yamatoji Line" },
+    { route: "Osaka → Kanazawa", duration: "~2h 30m", how: "Thunderbird" },
+    { route: "Kanazawa → Tokyo", duration: "~2h 30m", how: "Hokuriku Shinkansen" },
+  ],
+
   /** Venue alternatives by category – same type & area. Addresses/hours from Google; verify before travel. */
   venueCategories: [
     {
@@ -198,7 +208,7 @@ window.HOLIYAY_DATA = {
       hotel: "Shirayunoyado Yamadaya Hakone Gora",
       morning: [],
       afternoon: [
-        { type: "Train", text: "Romancecar Shinjuku → Hakone (Hakone Free Pass)" },
+        { type: "Train", text: "Romancecar Shinjuku → Hakone (Hakone Free Pass)", travelTime: "~1h 30m" },
       ],
       evening: [
         { type: "Hotel", text: "Private onsen soak + ryokan dinner/relax (early night to unwind after Tokyo pace)" },
@@ -216,7 +226,7 @@ window.HOLIYAY_DATA = {
         { type: "Easy pace", text: "Hakone Ropeway to Owakudani (black eggs, views—Mt. Fuji often clearest in winter)" },
         { type: "Optional", text: "Lake Ashi stroll or short cruise, Hakone Shrine walk (serene paths)" },
       ],
-      evening: [{ type: "Shinkansen", text: "Odawara → Kyoto (arrive relaxed)" }],
+      evening: [{ type: "Shinkansen", text: "Odawara → Kyoto (arrive relaxed)", travelTime: "~2h" }],
       night: [],
       costJpy: null,
       notes: "Skip rushing; focus on photos, hot drinks, fresh air. Alternative chill: onsen hopping (e.g. Hakone Yuryo outdoor baths) or ryokan lounge with views.",
@@ -275,7 +285,7 @@ window.HOLIYAY_DATA = {
       date: "2027-01-24",
       title: "Kyoto → Osaka",
       location: "Osaka",
-      morning: [{ type: "Train", text: "JR Kyoto Line" }],
+      morning: [{ type: "Train", text: "JR Kyoto Line", travelTime: "~30 min" }],
       afternoon: [{ type: "Visit", text: "Osaka Castle" }],
       evening: [],
       night: [{ type: "Food", text: "Dotonbori (street eats, neon vibes—pace yourself)" }],
@@ -297,7 +307,7 @@ window.HOLIYAY_DATA = {
       date: "2027-01-26",
       title: "Nara day trip",
       location: "Nara",
-      morning: [{ type: "Train", text: "JR Yamatoji Line" }],
+      morning: [{ type: "Train", text: "JR Yamatoji Line", travelTime: "~45 min" }],
       afternoon: [
         { type: "Visit", text: "Nara Park + Todai-ji (deer feeding, temple—relaxed wandering)" },
       ],
@@ -310,7 +320,7 @@ window.HOLIYAY_DATA = {
       date: "2027-01-27",
       title: "Osaka → Kanazawa",
       location: "Kanazawa",
-      morning: [{ type: "Train", text: "Thunderbird Limited Express" }],
+      morning: [{ type: "Train", text: "Thunderbird Limited Express", travelTime: "~2h 30m" }],
       afternoon: [],
       evening: [{ type: "Dinner", text: "Okina Sushi", venueCategory: "restaurants_kanazawa", venueId: "okina_sushi" }],
       night: [],
@@ -345,7 +355,7 @@ window.HOLIYAY_DATA = {
       date: "2027-01-30",
       title: "Kanazawa → Tokyo",
       location: "Tokyo",
-      morning: [{ type: "Train", text: "Hokuriku Shinkansen" }],
+      morning: [{ type: "Train", text: "Hokuriku Shinkansen", travelTime: "~2h 30m" }],
       afternoon: [
         { type: "Arrive", text: "Tokyo – light shopping or rest (hotel check-in if needed)" },
       ],
