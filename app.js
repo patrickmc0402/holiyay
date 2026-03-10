@@ -176,6 +176,63 @@
     listEl.innerHTML = rows;
   }
 
+  function icsEscape(s) {
+    if (s == null) return "";
+    return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  }
+
+  function buildIcsContent() {
+    const days = DATA.days || [];
+    const lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Holiyay//Japan 2027//EN",
+      "CALSCALE:GREGORIAN",
+    ];
+    days.forEach(function (day) {
+      const start = day.date.replace(/-/g, "");
+      const endDate = new Date(day.date + "T12:00:00");
+      endDate.setDate(endDate.getDate() + 1);
+      const end = endDate.getFullYear() + String(endDate.getMonth() + 1).padStart(2, "0") + String(endDate.getDate()).padStart(2, "0");
+      const summary = "Day " + day.day + " – " + (day.title || day.location || "");
+      const parts = [];
+      if (day.location) parts.push("Location: " + day.location);
+      if (day.hotel) parts.push("Hotel: " + day.hotel);
+      ["morning", "afternoon", "evening", "night"].forEach(function (slot) {
+        const items = day[slot];
+        if (!items || !items.length) return;
+        const label = slot.charAt(0).toUpperCase() + slot.slice(1);
+        const text = items.map(function (i) { return (i.type ? i.type + ": " : "") + i.text; }).join(" \\n ");
+        parts.push(label + ": " + text);
+      });
+      if (day.costJpy) parts.push("Cost: ¥" + day.costJpy.toLocaleString());
+      const desc = parts.join(" \\n ");
+      lines.push("BEGIN:VEVENT");
+      lines.push("UID:holiyay-day-" + day.day + "@holiyay");
+      lines.push("DTSTART;VALUE=DATE:" + start);
+      lines.push("DTEND;VALUE=DATE:" + end);
+      lines.push("SUMMARY:" + icsEscape(summary));
+      lines.push("DESCRIPTION:" + icsEscape(desc));
+      lines.push("END:VEVENT");
+    });
+    lines.push("END:VCALENDAR");
+    return lines.join("\r\n");
+  }
+
+  function downloadIcs() {
+    const ics = buildIcsContent();
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (trip.title || "Holiyay").replace(/\s+/g, "-") + "-itinerary.ics";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function renderFlights() {
     const flights = DATA.flights;
     if (!flights) return;
@@ -461,6 +518,8 @@
     renderBudget();
     renderDayCosts();
     renderDays();
+    var calendarBtn = document.getElementById("calendar-download-btn");
+    if (calendarBtn) calendarBtn.addEventListener("click", downloadIcs);
     document.body.addEventListener("change", onVenueSelectChange);
     document.body.addEventListener("change", onDashboardChange);
     document.body.addEventListener("input", onDashboardChange);

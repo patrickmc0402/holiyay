@@ -369,6 +369,18 @@ body {
   line-height: 1.45;
 }
 
+/* Calendar export */
+.calendar-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.calendar-actions {
+  margin: 0;
+}
+
 /* Reminders */
 .reminder-list {
   list-style: none;
