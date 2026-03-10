@@ -19,6 +19,7 @@
   function showAccessGate() {
     document.body.innerHTML =
       "<div class=\"app access-gate\">" +
+      "<img src=\"Holiyay%20Logo%20with%20Coral%20Circle%20and%20Gradient%20Text.png\" alt=\"Holiyay\" class=\"access-gate-logo\" />" +
       "<h1 class=\"access-gate-title\">Holiyay</h1>" +
       "<p class=\"access-gate-hint\">Enter the password to view this itinerary.</p>" +
       "<form id=\"access-form\" class=\"access-gate-form\">" +
