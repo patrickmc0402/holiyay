@@ -238,6 +238,103 @@ body {
   text-decoration: underline;
 }
 
+/* What's been booked + AUD/JPY converter */
+.section-bookings h2 {
+  margin-bottom: 0.75rem;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.booking-item {
+  display: grid;
+  gap: 0.2rem 0.5rem;
+  padding: 0.65rem 0.75rem;
+  background: #faf9f7;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.booking-label {
+  font-size: 0.95rem;
+  color: var(--text);
+  grid-column: 1 / -1;
+}
+
+.booking-dates {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.booking-amount {
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--success);
+}
+
+.booking-other {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.converter-box {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.converter-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+}
+
+.converter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.converter-row input {
+  width: 7rem;
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text);
+}
+
+.converter-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.converter-row select {
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.converter-result {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--accent);
+  font-size: 1rem;
+}
+
 /* Dashboard – paid/unpaid and editable amounts */
 .section-dashboard h2 {
   margin-bottom: 0.75rem;

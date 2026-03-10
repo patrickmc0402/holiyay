@@ -14,9 +14,15 @@ window.HOLIYAY_DATA = {
     // Password to view the itinerary. Share this with your partner so you both use the same one (and see the same synced data).
     accessPassword: "japan2027",
     // Optional: shared sync so you both see the same updates. Create a free project at supabase.com, add a table (see README), then set:
-    syncSupabaseUrl: "",
-    syncSupabaseAnonKey: "",
+    syncSupabaseUrl: "https://kxptmcvijnszpelydluq.supabase.co",
+    syncSupabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHRtY3Zpam5zenBlbHlkbHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTI0MDksImV4cCI6MjA4ODY2ODQwOX0.PBBOKUAgwz3zeUXnitUAVFCAv8QYs7J96P4cVrzsnJQ",
   },
+
+  /** Confirmed bookings – enter amount in one currency; the app shows the other using your exchange rate. */
+  bookingsSoFar: [
+    { label: "Hotel Sunroute Plaza Shinjuku", dates: "13 Jan – 18 Jan 2027", amount: 1268, currency: "AUD" },
+    { label: "Shirayunoyado Yamadaya Hakone Gora", dates: "18 Jan – 19 Jan 2027", amount: 45900, currency: "JPY" },
+  ],
 
   /** Tentative flights (Cathay Pacific via Hong Kong) */
   flights: {

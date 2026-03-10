@@ -46,6 +46,22 @@
         </p>
       </section>
 
+      <section class="card section-bookings" aria-labelledby="bookings-heading">
+        <h2 id="bookings-heading">What’s been booked</h2>
+        <div class="bookings-list" id="bookings-list"></div>
+        <div class="converter-box">
+          <p class="converter-label">Convert amount (uses your exchange rate above)</p>
+          <div class="converter-row">
+            <input type="number" id="converter-amount" placeholder="0" min="0" step="any" aria-label="Amount" />
+            <select id="converter-currency" aria-label="Currency">
+              <option value="AUD">AUD</option>
+              <option value="JPY">JPY</option>
+            </select>
+            <span id="converter-result" class="converter-result"></span>
+          </div>
+        </div>
+      </section>
+
       <section class="card section-reminders" aria-labelledby="reminders-heading">
         <h2 id="reminders-heading">Book by – reminders</h2>
         <ul class="reminder-list" id="reminder-list"></ul>

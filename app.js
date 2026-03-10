@@ -230,7 +230,12 @@
 
   function jpyToAud(jpy) {
     if (jpy == null) return null;
-    return jpy / rate;
+    return jpy / getStoredRate();
+  }
+
+  function audToJpy(aud) {
+    if (aud == null) return null;
+    return Math.round(aud * getStoredRate());
   }
 
   function formatAud(amount) {
@@ -347,6 +352,47 @@
     URL.revokeObjectURL(url);
   }
 
+  function renderBookings() {
+    const listEl = document.getElementById("bookings-list");
+    if (!listEl) return;
+    const bookings = DATA.bookingsSoFar || [];
+    const r = getStoredRate();
+    listEl.innerHTML = bookings
+      .map(function (b) {
+        const isAud = b.currency === "AUD";
+        const amount = Number(b.amount);
+        const other = isAud ? audToJpy(amount) : (amount / r).toFixed(2);
+        const primaryStr = isAud ? "AUD $" + amount.toLocaleString() : "¥" + amount.toLocaleString();
+        const otherStr = isAud ? "≈ ¥" + (other != null ? other.toLocaleString() : "—") : "≈ AUD $" + other;
+        return (
+          "<div class=\"booking-item\">" +
+          "<strong class=\"booking-label\">" + escapeHtml(b.label) + "</strong>" +
+          "<span class=\"booking-dates\">" + escapeHtml(b.dates || "") + "</span>" +
+          "<span class=\"booking-amount\">" + primaryStr + " <span class=\"booking-other\">" + otherStr + "</span></span>" +
+          "</div>"
+        );
+      })
+      .join("");
+  }
+
+  function updateConverterResult() {
+    const amountEl = document.getElementById("converter-amount");
+    const currencyEl = document.getElementById("converter-currency");
+    const resultEl = document.getElementById("converter-result");
+    if (!amountEl || !currencyEl || !resultEl) return;
+    const num = parseFloat(String(amountEl.value).replace(",", "."), 10);
+    if (Number.isNaN(num) || num < 0) {
+      resultEl.textContent = "";
+      return;
+    }
+    const r = getStoredRate();
+    if (currencyEl.value === "AUD") {
+      resultEl.textContent = "= ¥" + (audToJpy(num) != null ? audToJpy(num).toLocaleString() : "—");
+    } else {
+      resultEl.textContent = "= AUD $" + (num / r).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  }
+
   function renderFlights() {
     const flights = DATA.flights;
     if (!flights) return;
@@ -377,7 +423,7 @@
     const input = document.getElementById("rate-input");
     const saveBtn = document.getElementById("rate-save");
     if (!input) return;
-    input.value = String(rate);
+    input.value = String(getStoredRate());
     if (saveBtn) {
       saveBtn.addEventListener("click", function () {
         const v = input.value.replace(",", ".");
@@ -385,6 +431,8 @@
         const n = parseFloat(v, 10);
         if (!Number.isNaN(n) && n > 0) {
           window.HOLIYAY_RATE = n;
+          renderBookings();
+          updateConverterResult();
           renderBudget();
           renderDayCosts();
           renderDays();
@@ -627,6 +675,7 @@
     renderHeader();
     renderDashboard();
     renderFlights();
+    renderBookings();
     renderExchange();
     renderReminders();
     renderBudget();
@@ -634,6 +683,11 @@
     renderDays();
     var calendarBtn = document.getElementById("calendar-download-btn");
     if (calendarBtn) calendarBtn.addEventListener("click", downloadIcs);
+    var converterAmount = document.getElementById("converter-amount");
+    var converterCurrency = document.getElementById("converter-currency");
+    if (converterAmount) converterAmount.addEventListener("input", updateConverterResult);
+    if (converterCurrency) converterCurrency.addEventListener("change", updateConverterResult);
+    updateConverterResult();
     document.body.addEventListener("change", onVenueSelectChange);
     document.body.addEventListener("change", onDashboardChange);
     document.body.addEventListener("input", onDashboardChange);
