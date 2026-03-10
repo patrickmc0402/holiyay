@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Japan 2027 – Holiyay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1 class="trip-title" id="trip-title">Japan 2027</h1>
+      <p class="trip-dates" id="trip-dates">13 Jan – 31 Jan 2027</p>
+      <p class="trip-route" id="trip-route">Tokyo → Hakone → Kyoto → Osaka → Nara → Kanazawa → Tokyo</p>
+    </header>
+
+    <main class="main">
+      <section class="card section-exchange" aria-labelledby="exchange-heading">
+        <h2 id="exchange-heading">Exchange rate (AUD)</h2>
+        <p class="exchange-hint">Set JPY per 1 AUD so costs below show in AUD. Update when rates change.</p>
+        <div class="exchange-row">
+          <label for="rate-input">JPY per 1 AUD</label>
+          <input type="number" id="rate-input" min="80" max="120" step="0.5" value="97" />
+          <button type="button" id="rate-save" class="btn btn-small">Save</button>
+        </div>
+        <p class="exchange-source">
+          <a href="https://www.xe.com/currencyconverter/convert/?Amount=1&From=AUD&To=JPY" target="_blank" rel="noopener">Check current rate (XE)</a>
+        </p>
+      </section>
+
+      <section class="card section-reminders" aria-labelledby="reminders-heading">
+        <h2 id="reminders-heading">Book by – reminders</h2>
+        <ul class="reminder-list" id="reminder-list"></ul>
+      </section>
+
+      <section class="card section-budget" aria-labelledby="budget-heading">
+        <h2 id="budget-heading">Budget snapshot</h2>
+        <div class="budget-line transport" id="budget-transport"></div>
+        <p class="budget-notes" id="budget-notes"></p>
+        <div class="budget-day-costs" id="budget-day-costs"></div>
+      </section>
+
+      <section class="card section-map" aria-labelledby="map-heading">
+        <h2 id="map-heading">Custom map (Google My Maps)</h2>
+        <p>Create a map with these layers and add the pins. Best viewed on phone while out.</p>
+        <div class="map-layers" id="map-layers"></div>
+        <p class="map-cta">
+          <a href="https://www.google.com/maps/d/u/0/" target="_blank" rel="noopener" class="btn">Open Google My Maps</a>
+        </p>
+      </section>
+
+      <section class="section-days" aria-labelledby="itinerary-heading">
+        <h2 id="itinerary-heading">Day-by-day itinerary</h2>
+        <div class="day-list" id="day-list"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Holiyay – personal itinerary. Rate saved in this device only.</p>
+    </footer>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+/* Holiyay – Japan 2027 itinerary. Mobile-first. */
+
+/* Access gate (optional password) */
+.access-gate {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.access-gate-title {
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.access-gate-hint {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0 0 1.25rem;
+}
+
+.access-gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.access-gate-input {
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.access-gate-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.access-gate-btn {
+  align-self: center;
+}
+
+.access-gate-error {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}
+
+:root {
+  --bg: #0f0f14;
+  --surface: #1a1a2e;
+  --card: #232338;
+  --text: #e8e8ed;
+  --text-muted: #9a9ab0;
+  --accent: #e94560;
+  --accent-soft: rgba(233, 69, 96, 0.15);
+  --success: #2eb872;
+  --border: #2d2d44;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: "Outfit", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-left: var(--safe-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: var(--safe-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 1.25rem 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.trip-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.trip-dates {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0 0 0.35rem;
+}
+
+.trip-route {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: var(--text);
+}
+
+/* Exchange */
+.section-exchange .exchange-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.exchange-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.exchange-row label {
+  font-size: 0.9rem;
+}
+
+.exchange-row input {
+  width: 6ch;
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.exchange-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.btn-small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.exchange-source {
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0;
+}
+
+.exchange-source a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.exchange-source a:hover {
+  text-decoration: underline;
+}
+
+/* Reminders */
+.reminder-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reminder-item {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 0.2rem 0.5rem;
+}
+
+.reminder-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reminder-item:first-child {
+  padding-top: 0;
+}
+
+.reminder-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.reminder-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.reminder-meta .book-by {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.reminder-meta .urgent {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Budget */
+.budget-line {
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.budget-line .aud {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--success);
+}
+
+.budget-notes {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.budget-day-costs {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Map */
+.section-map p:first-of-type {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.map-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.map-layer {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+}
+
+.map-layer-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+}
+
+.map-layer-pins {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.map-layer-pins li {
+  margin: 0.15rem 0;
+}
+
+.map-layer-note {
+  font-size: 0.8rem;
+  color: var(--accent);
+  margin: 0.35rem 0 0;
+}
+
+.map-cta {
+  margin: 0;
+}
+
+.map-cta .btn {
+  width: 100%;
+  text-align: center;
+}
+
+/* Day list */
+.section-days {
+  margin-bottom: 2rem;
+}
+
+.section-days h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  padding: 0 0.25rem;
+}
+
+.day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.day-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.day-header {
+  background: var(--surface);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.day-number {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.day-date {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.day-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  width: 100%;
+}
+
+.day-body {
+  padding: 1rem;
+}
+
+.day-hotel {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.day-block {
+  margin-bottom: 0.75rem;
+}
+
+.day-block:last-child {
+  margin-bottom: 0;
+}
+
+.day-block-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0 0 0.25rem;
+}
+
+.day-block-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.day-block-items li {
+  font-size: 0.95rem;
+  padding: 0.2rem 0;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.day-block-items li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Venue dropdown – same category, nearby alternatives */
+.day-block-items li.day-block-item-venue {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.5rem 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  background: var(--surface);
+}
+
+.day-block-items li.day-block-item-venue::before {
+  display: none;
+}
+
+.day-block-item-venue .venue-type {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.day-block-item-venue .venue-select {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem 2rem 0.5rem 0.5rem;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239a9ab0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.day-block-item-venue .venue-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.day-block-item-venue .venue-details {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+  font-size: 0.85rem;
+}
+
+.day-block-item-venue .venue-name {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0 0 0.35rem;
+}
+
+.day-block-item-venue .venue-address,
+.day-block-item-venue .venue-hours,
+.day-block-item-venue .venue-phone {
+  margin: 0.2rem 0;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.day-block-item-venue .venue-phone::before {
+  content: "Tel: ";
+  color: var(--text-muted);
+}
+
+.day-block-item-venue .venue-verify {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+}
+
+.day-block-item-venue .venue-verify a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.day-block-item-venue .venue-verify a:hover {
+  text-decoration: underline;
+}
+
+.day-notes {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.day-notes br {
+  display: block;
+  content: "";
+  margin-top: 0.35rem;
+}
+
+.day-cost {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  font-size: 0.9rem;
+}
+
+.day-cost .aud {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--success);
+}
+
+.day-cost .jpy {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.day-cost-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  padding: 1.5rem 0.25rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* Wider screens */
+@media (min-width: 600px) {
+  .app {
+    padding: 1.5rem;
+    max-width: 620px;
+  }
+
+  .trip-title {
+    font-size: 2rem;
+  }
+
+  .day-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .day-title {
+    width: auto;
+    order: 0;
+  }
+
+  .day-number {
+    order: -1;
+    margin-right: 0.5rem;
+  }
+
+  .day-date {
+    margin-left: auto;
+  }
+}
