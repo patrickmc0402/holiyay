@@ -8,7 +8,7 @@
   <title>Japan 2027 – Holiyay</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -20,6 +20,19 @@
     </header>
 
     <main class="main">
+      <section class="card section-dashboard" aria-labelledby="dashboard-heading">
+        <h2 id="dashboard-heading">Booking & budget</h2>
+        <div class="dashboard-totals" id="dashboard-totals"></div>
+        <div class="dashboard-list" id="dashboard-list"></div>
+      </section>
+
+      <section class="card section-flights" aria-labelledby="flights-heading">
+        <h2 id="flights-heading">Tentative flights</h2>
+        <div class="flights-outbound" id="flights-outbound"></div>
+        <div class="flights-return" id="flights-return"></div>
+        <p class="flights-deals" id="flights-deals"></p>
+      </section>
+
       <section class="card section-exchange" aria-labelledby="exchange-heading">
         <h2 id="exchange-heading">Exchange rate (AUD)</h2>
         <p class="exchange-hint">Set JPY per 1 AUD so costs below show in AUD. Update when rates change.</p>
@@ -43,15 +56,6 @@
         <div class="budget-line transport" id="budget-transport"></div>
         <p class="budget-notes" id="budget-notes"></p>
         <div class="budget-day-costs" id="budget-day-costs"></div>
-      </section>
-
-      <section class="card section-map" aria-labelledby="map-heading">
-        <h2 id="map-heading">Custom map (Google My Maps)</h2>
-        <p>Create a map with these layers and add the pins. Best viewed on phone while out.</p>
-        <div class="map-layers" id="map-layers"></div>
-        <p class="map-cta">
-          <a href="https://www.google.com/maps/d/u/0/" target="_blank" rel="noopener" class="btn">Open Google My Maps</a>
-        </p>
       </section>
 
       <section class="section-days" aria-labelledby="itinerary-heading">

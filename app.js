@@ -55,6 +55,7 @@
 
   const rate = getStoredRate();
   const VENUE_STORAGE_PREFIX = "holiyay_venue_";
+  const BOOKABLES_STORAGE_KEY = "holiyay_bookables";
 
   function getStoredRate() {
     const s = localStorage.getItem(STORAGE_KEY);
@@ -81,6 +82,36 @@
     const n = parseFloat(value, 10);
     if (Number.isNaN(n) || n <= 0) return;
     localStorage.setItem(STORAGE_KEY, String(n));
+  }
+
+  function getBookablesState() {
+    try {
+      const s = localStorage.getItem(BOOKABLES_STORAGE_KEY);
+      if (s) {
+        const o = JSON.parse(s);
+        if (o && typeof o === "object") return o;
+      }
+    } catch (e) {}
+    return {};
+  }
+
+  function setBookableState(id, state) {
+    const o = getBookablesState();
+    o[id] = state;
+    try {
+      localStorage.setItem(BOOKABLES_STORAGE_KEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+
+  function getBookableState(id) {
+    const o = getBookablesState();
+    const st = o[id];
+    const bookable = (DATA.bookables || []).find(function (b) { return b.id === id; });
+    const defaultAUD = bookable ? bookable.defaultAUD : 0;
+    return {
+      paid: st && typeof st.paid === "boolean" ? st.paid : false,
+      amount: st && typeof st.amount === "number" && !Number.isNaN(st.amount) ? st.amount : defaultAUD,
+    };
   }
 
   function jpyToAud(jpy) {
@@ -110,6 +141,56 @@
     t.setHours(0, 0, 0, 0);
     d.setHours(0, 0, 0, 0);
     return Math.ceil((d - t) / (1000 * 60 * 60 * 24));
+  }
+
+  function renderDashboard() {
+    const totalsEl = document.getElementById("dashboard-totals");
+    const listEl = document.getElementById("dashboard-list");
+    if (!totalsEl || !listEl) return;
+    const bookables = DATA.bookables || [];
+    let paidTotal = 0;
+    let unpaidTotal = 0;
+    const rows = bookables.map(function (b) {
+      const st = getBookableState(b.id);
+      if (st.paid) paidTotal += st.amount;
+      else unpaidTotal += st.amount;
+      const checked = st.paid ? " checked" : "";
+      const paidClass = st.paid ? " is-paid" : "";
+      return (
+        "<div class=\"dashboard-row" + paidClass + "\" data-bookable-id=\"" + escapeHtml(b.id) + "\">" +
+        "<label class=\"dashboard-toggle-wrap\">" +
+        "<input type=\"checkbox\" class=\"dashboard-paid-toggle\" data-id=\"" + escapeHtml(b.id) + "\" aria-label=\"Mark as paid\"" + checked + " />" +
+        "<span class=\"dashboard-toggle-label\">" + (st.paid ? "Paid" : "Unpaid") + "</span>" +
+        "</label>" +
+        "<span class=\"dashboard-row-label\">" + escapeHtml(b.label) + "</span>" +
+        "<span class=\"dashboard-amount-wrap\">" +
+        "<span class=\"dashboard-currency\">$</span>" +
+        "<input type=\"number\" class=\"dashboard-amount\" data-id=\"" + escapeHtml(b.id) + "\" value=\"" + (st.amount === 0 ? "" : String(st.amount)) + "\" placeholder=\"0\" min=\"0\" step=\"1\" aria-label=\"Amount AUD\" />" +
+        "</span>" +
+        "</div>"
+      );
+    }).join("");
+    totalsEl.innerHTML =
+      "<div class=\"dashboard-total dashboard-total-paid\"><span class=\"dashboard-total-label\">Paid</span> <strong class=\"dashboard-total-value\">" + formatAud(paidTotal) + "</strong></div>" +
+      "<div class=\"dashboard-total dashboard-total-unpaid\"><span class=\"dashboard-total-label\">Unpaid</span> <strong class=\"dashboard-total-value\">" + formatAud(unpaidTotal) + "</strong></div>";
+    listEl.innerHTML = rows;
+  }
+
+  function renderFlights() {
+    const flights = DATA.flights;
+    if (!flights) return;
+    const outEl = document.getElementById("flights-outbound");
+    const retEl = document.getElementById("flights-return");
+    const dealsEl = document.getElementById("flights-deals");
+    if (outEl && flights.outbound) {
+      outEl.innerHTML = "<strong>Outbound</strong>: " + flights.outbound.map(function (f) { return f.flight + " " + f.route; }).join(" → ");
+    }
+    if (retEl && flights.return) {
+      retEl.innerHTML = "<strong>Return</strong>: " + flights.return.map(function (f) { return f.flight + " " + f.route; }).join(" → ");
+    }
+    if (dealsEl && flights.dealsNote) {
+      dealsEl.textContent = flights.dealsNote;
+    }
   }
 
   function renderHeader() {
@@ -154,9 +235,11 @@
         const isPast = bookBy < today;
         const urgent = !isPast && daysLeft <= 30;
         const note = r.notes ? " · " + r.notes : "";
+        const st = getBookableState(r.id);
+        const paidBadge = st.paid ? '<span class="reminder-badge reminder-badge-paid">Paid</span>' : '<span class="reminder-badge reminder-badge-unpaid">Unpaid</span>';
         return (
           '<li class="reminder-item">' +
-          '<span class="reminder-label">' + escapeHtml(r.label) + "</span>" +
+          '<span class="reminder-label">' + paidBadge + " " + escapeHtml(r.label) + "</span>" +
           '<span class="reminder-meta">' +
           'Book by <span class="book-by">' + formatDate(r.bookBy) + "</span>" +
           (urgent ? ' <span class="urgent">(' + daysLeft + " days)</span>" : "") +
@@ -256,27 +339,6 @@
     );
   }
 
-  function renderMapLayers() {
-    const container = document.getElementById("map-layers");
-    if (!container) return;
-    container.innerHTML = DATA.mapLayers
-      .map(function (layer) {
-        const pinsHtml =
-          layer.pins && layer.pins.length
-            ? "<ul class=\"map-layer-pins\">" + layer.pins.map(function (p) { return "<li>" + escapeHtml(p) + "</li>"; }).join("") + "</ul>"
-            : "";
-        const noteHtml = layer.note ? '<p class="map-layer-note">' + escapeHtml(layer.note) + "</p>" : "";
-        return (
-          '<div class="map-layer">' +
-          '<p class="map-layer-name">' + escapeHtml(layer.name) + "</p>" +
-          pinsHtml +
-          noteHtml +
-          "</div>"
-        );
-      })
-      .join("");
-  }
-
   function renderDays() {
     const container = document.getElementById("day-list");
     if (!container) return;
@@ -365,16 +427,43 @@
     }
   }
 
+  function onDashboardChange(e) {
+    var el = e.target;
+    if (!el) return;
+    var id = el.getAttribute("data-id");
+    if (!id) return;
+    if (el.classList && el.classList.contains("dashboard-paid-toggle")) {
+      var state = getBookableState(id);
+      state.paid = el.checked;
+      setBookableState(id, state);
+      renderDashboard();
+      renderReminders();
+      return;
+    }
+    if (el.classList && el.classList.contains("dashboard-amount")) {
+      var num = parseFloat(String(el.value).replace(",", "."), 10);
+      if (Number.isNaN(num)) num = 0;
+      var state = getBookableState(id);
+      state.amount = num;
+      setBookableState(id, state);
+      renderDashboard();
+      return;
+    }
+  }
+
   function init() {
     window.HOLIYAY_RATE = rate;
     renderHeader();
+    renderDashboard();
+    renderFlights();
     renderExchange();
     renderReminders();
     renderBudget();
     renderDayCosts();
-    renderMapLayers();
     renderDays();
     document.body.addEventListener("change", onVenueSelectChange);
+    document.body.addEventListener("change", onDashboardChange);
+    document.body.addEventListener("input", onDashboardChange);
   }
 
   init();

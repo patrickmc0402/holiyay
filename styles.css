@@ -68,8 +68,8 @@
   --border: #e0ddd8;
   --radius: 12px;
   --radius-sm: 8px;
-  --font: "Outfit", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
   /* Activity type colours */
@@ -99,8 +99,12 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   padding-left: var(--safe-top);
   padding-right: env(safe-area-inset-right);
   padding-bottom: var(--safe-bottom);
@@ -128,7 +132,8 @@ body {
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0 0 0.25rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .trip-dates {
@@ -158,6 +163,7 @@ body {
   font-weight: 600;
   margin: 0 0 0.75rem;
   color: var(--text);
+  letter-spacing: -0.01em;
 }
 
 /* Exchange */
@@ -232,6 +238,137 @@ body {
   text-decoration: underline;
 }
 
+/* Dashboard – paid/unpaid and editable amounts */
+.section-dashboard h2 {
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboard-total {
+  font-size: 1rem;
+}
+
+.dashboard-total-label {
+  color: var(--text-muted);
+  margin-right: 0.35rem;
+}
+
+.dashboard-total-paid .dashboard-total-value {
+  color: var(--success);
+}
+
+.dashboard-total-unpaid .dashboard-total-value {
+  color: var(--accent);
+}
+
+.dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: #faf9f7;
+  border: 1px solid var(--border);
+}
+
+.dashboard-row.is-paid {
+  background: rgba(26, 127, 55, 0.08);
+  border-color: rgba(26, 127, 55, 0.3);
+}
+
+.dashboard-toggle-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dashboard-paid-toggle {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--success);
+  cursor: pointer;
+}
+
+.dashboard-toggle-label {
+  color: var(--text-muted);
+}
+
+.dashboard-row.is-paid .dashboard-toggle-label {
+  color: var(--success);
+}
+
+.dashboard-row-label {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.dashboard-amount-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.dashboard-currency {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.dashboard-amount {
+  width: 5rem;
+  padding: 0.35rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  text-align: right;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--text);
+}
+
+.dashboard-amount:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Flights */
+.section-flights h2 {
+  margin-bottom: 0.75rem;
+}
+
+.flights-outbound,
+.flights-return {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.flights-deals {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  line-height: 1.45;
+}
+
 /* Reminders */
 .reminder-list {
   list-style: none;
@@ -258,6 +395,29 @@ body {
 .reminder-label {
   font-weight: 500;
   font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.reminder-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.reminder-badge-paid {
+  background: rgba(26, 127, 55, 0.2);
+  color: var(--success);
+}
+
+.reminder-badge-unpaid {
+  background: rgba(196, 92, 38, 0.15);
+  color: var(--accent);
 }
 
 .reminder-meta {
@@ -296,59 +456,6 @@ body {
 .budget-day-costs {
   font-size: 0.85rem;
   color: var(--text-muted);
-}
-
-/* Map */
-.section-map p:first-of-type {
-  margin: 0 0 1rem;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.map-layers {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.map-layer {
-  background: #faf9f7;
-  border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border);
-}
-
-.map-layer-name {
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin: 0 0 0.35rem;
-}
-
-.map-layer-pins {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin: 0;
-  padding-left: 1rem;
-}
-
-.map-layer-pins li {
-  margin: 0.15rem 0;
-}
-
-.map-layer-note {
-  font-size: 0.8rem;
-  color: var(--accent);
-  margin: 0.35rem 0 0;
-}
-
-.map-cta {
-  margin: 0;
-}
-
-.map-cta .btn {
-  width: 100%;
-  text-align: center;
 }
 
 /* Day list */
@@ -453,9 +560,10 @@ body {
 }
 
 .day-block-items li {
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   padding: 0.28rem 0 0.28rem 1.15rem;
   position: relative;
+  line-height: 1.5;
 }
 
 .day-block-items li::before {

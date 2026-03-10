@@ -15,6 +15,35 @@ window.HOLIYAY_DATA = {
     accessPassword: "",
   },
 
+  /** Tentative flights (Cathay Pacific via Hong Kong) */
+  flights: {
+    outbound: [
+      { flight: "CX178", route: "Australia → Hong Kong" },
+      { flight: "CX548", route: "Hong Kong → Tokyo Haneda" },
+    ],
+    return: [
+      { flight: "CX521", route: "Tokyo Haneda → Hong Kong" },
+      { flight: "CX105", route: "Hong Kong → Australia" },
+    ],
+    dealsNote: "Virgin Velocity: CommBank Awards points transfer to Velocity (1:0.4 standard, 1:0.5 premium cards). Check velocityfrequentflyer.com for partner redemptions. Cathay may be bookable with points via Velocity partners or compare cash fares.",
+  },
+
+  /** Things to book – paid/unpaid toggle and editable amount (AUD). Stored per device. */
+  bookables: [
+    { id: "flights", label: "Flights (Cathay via HK)", defaultAUD: 0 },
+    { id: "hotel-shinjuku", label: "Hotel Sunroute Plaza Shinjuku", defaultAUD: 0 },
+    { id: "ryokan-hakone", label: "Shirayunoyado Yamadaya Hakone Gora", defaultAUD: 0 },
+    { id: "kyoto-accom", label: "Kyoto accommodation", defaultAUD: 0 },
+    { id: "osaka-accom", label: "Osaka accommodation", defaultAUD: 0 },
+    { id: "kanazawa-accom", label: "Kanazawa accommodation", defaultAUD: 0 },
+    { id: "transport", label: "Transport (Hakone pass, IC, Shinkansen for two)", defaultAUD: 1134 },
+    { id: "sumo", label: "January Grand Sumo tickets", defaultAUD: 0 },
+    { id: "disney", label: "Tokyo DisneySea (e.g. 2× tickets)", defaultAUD: 450 },
+    { id: "romancecar", label: "Romancecar Shinjuku → Hakone", defaultAUD: 0 },
+    { id: "tea-ceremony", label: "Oboro Tea Ceremony (Kyoto)", defaultAUD: 0 },
+    { id: "hakone-pass", label: "Hakone Free Pass", defaultAUD: 0 },
+  ],
+
   reminders: [
     { id: "flights", label: "Flights to/from Japan", bookBy: "2026-09-30", notes: "3–4 months ahead for better prices" },
     { id: "hotel-shinjuku", label: "Hotel Sunroute Plaza Shinjuku", bookBy: "2026-10-15", notes: "Tokyo nights 1–6" },
@@ -34,35 +63,6 @@ window.HOLIYAY_DATA = {
     jpy: 110000,
     notes: "Hakone Free Pass, IC card, individual Shinkansen. JR Pass would cost nearly double.",
   },
-
-  mapLayers: [
-    {
-      name: "Hotels",
-      pins: ["Hotel Sunroute Plaza Shinjuku", "Shirayunoyado Yamadaya Hakone Gora"],
-    },
-    {
-      name: "Soul / Record Bars",
-      pins: ["Little Soul Cafe", "Soul Bar PHILLY'S", "Bar Soul Stream", "Record Bar Analog"],
-    },
-    {
-      name: "Record Stores",
-      pins: ["Tower Records Shibuya", "Disk Union Shibuya", "Flash Disc Ranch"],
-    },
-    {
-      name: "Japanese Denim",
-      pins: ["Momotaro Jeans", "Pure Blue Japan", "Evisu", "Kapital"],
-      note: "Best area: Daikanyama",
-    },
-    {
-      name: "Thrift Shopping",
-      pins: [],
-      note: "Best areas: Shimokitazawa, Koenji",
-    },
-    {
-      name: "Chopstick Making",
-      pins: ["Miyajima Chopsticks Workshop", "Hashitou Chopstick Workshop"],
-    },
-  ],
 
   /** Venue alternatives by category – same type & area. Addresses/hours from Google; verify before travel. */
   venueCategories: [
