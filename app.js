@@ -41,10 +41,40 @@
     };
   }
 
+  var syncSupabaseUrl = (trip.syncSupabaseUrl || "").trim();
+  var syncSupabaseAnonKey = (trip.syncSupabaseAnonKey || "").trim();
+  var syncEnabled = syncSupabaseUrl.length > 0 && syncSupabaseAnonKey.length > 0;
+
+  function hashPassword(pwd) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(pwd)).then(function (buf) {
+      var a = new Uint8Array(buf);
+      var h = "";
+      for (var i = 0; i < a.length; i++) h += ("0" + a[i].toString(16)).slice(-2);
+      return h;
+    });
+  }
+
   if (accessPassword.length > 0) {
     try {
       if (sessionStorage.getItem(ACCESS_KEY) !== "1") {
         showAccessGate();
+        if (syncEnabled) {
+          document.getElementById("access-form").onsubmit = function (e) {
+            e.preventDefault();
+            var input = document.getElementById("access-password");
+            var err = document.getElementById("access-error");
+            if (input.value !== accessPassword) {
+              err.style.display = "block";
+              input.focus();
+              return;
+            }
+            sessionStorage.setItem(ACCESS_KEY, "1");
+            hashPassword(input.value).then(function (h) {
+              sessionStorage.setItem("holiyay_trip_code", h);
+              document.location.reload();
+            });
+          };
+        }
         return;
       }
     } catch (e) {
@@ -53,7 +83,6 @@
     }
   }
 
-  const rate = getStoredRate();
   const VENUE_STORAGE_PREFIX = "holiyay_venue_";
   const BOOKABLES_STORAGE_KEY = "holiyay_bookables";
 
@@ -76,12 +105,14 @@
 
   function setStoredVenue(dayNum, slot, index, venueId) {
     localStorage.setItem(getVenueKey(dayNum, slot, index), venueId);
+    saveSharedStateDebounced();
   }
 
   function setStoredRate(value) {
     const n = parseFloat(value, 10);
     if (Number.isNaN(n) || n <= 0) return;
     localStorage.setItem(STORAGE_KEY, String(n));
+    saveSharedStateDebounced();
   }
 
   function getBookablesState() {
@@ -101,6 +132,7 @@
     try {
       localStorage.setItem(BOOKABLES_STORAGE_KEY, JSON.stringify(o));
     } catch (e) {}
+    saveSharedStateDebounced();
   }
 
   function getBookableState(id) {
@@ -112,6 +144,88 @@
       paid: st && typeof st.paid === "boolean" ? st.paid : false,
       amount: st && typeof st.amount === "number" && !Number.isNaN(st.amount) ? st.amount : defaultAUD,
     };
+  }
+
+  function collectState() {
+    var venues = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(VENUE_STORAGE_PREFIX) === 0) venues[k] = localStorage.getItem(k);
+      }
+    } catch (e) {}
+    return {
+      bookables: getBookablesState(),
+      rate: getStoredRate(),
+      venues: venues,
+    };
+  }
+
+  function applyState(state) {
+    if (!state) return;
+    try {
+      if (state.bookables && typeof state.bookables === "object") {
+        localStorage.setItem(BOOKABLES_STORAGE_KEY, JSON.stringify(state.bookables));
+      }
+      if (state.rate != null && !Number.isNaN(state.rate) && state.rate > 0) {
+        localStorage.setItem(STORAGE_KEY, String(state.rate));
+      }
+      if (state.venues && typeof state.venues === "object") {
+        for (var k in state.venues) {
+          if (state.venues.hasOwnProperty(k) && k.indexOf(VENUE_STORAGE_PREFIX) === 0) {
+            localStorage.setItem(k, state.venues[k]);
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  var saveSharedStateTimer = null;
+  function saveSharedStateDebounced() {
+    if (!syncEnabled) return;
+    var tripCode = null;
+    try {
+      tripCode = sessionStorage.getItem("holiyay_trip_code");
+    } catch (e) {}
+    if (!tripCode) return;
+    if (saveSharedStateTimer) clearTimeout(saveSharedStateTimer);
+    saveSharedStateTimer = setTimeout(function () {
+      saveSharedStateTimer = null;
+      var state = collectState();
+      var url = syncSupabaseUrl.replace(/\/$/, "") + "/rest/v1/shared_state";
+      var body = JSON.stringify({
+        trip_code: tripCode,
+        data: state,
+        updated_at: new Date().toISOString(),
+      });
+      fetch(url, {
+        method: "POST",
+        headers: {
+          apikey: syncSupabaseAnonKey,
+          Authorization: "Bearer " + syncSupabaseAnonKey,
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates",
+        },
+        body: body,
+      }).catch(function () {});
+    }, 500);
+  }
+
+  function getSharedState(tripCode) {
+    var url = syncSupabaseUrl.replace(/\/$/, "") + "/rest/v1/shared_state?trip_code=eq." + encodeURIComponent(tripCode) + "&select=data";
+    return fetch(url, {
+      method: "GET",
+      headers: {
+        apikey: syncSupabaseAnonKey,
+        Authorization: "Bearer " + syncSupabaseAnonKey,
+      },
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (rows) {
+        if (rows && rows[0] && rows[0].data) return rows[0].data;
+        return null;
+      })
+      .catch(function () { return null; });
   }
 
   function jpyToAud(jpy) {
@@ -509,7 +623,7 @@
   }
 
   function init() {
-    window.HOLIYAY_RATE = rate;
+    window.HOLIYAY_RATE = getStoredRate();
     renderHeader();
     renderDashboard();
     renderFlights();
@@ -525,5 +639,18 @@
     document.body.addEventListener("input", onDashboardChange);
   }
 
-  init();
+  (function run() {
+    var tripCode = null;
+    try {
+      tripCode = sessionStorage.getItem("holiyay_trip_code");
+    } catch (e) {}
+    if (syncEnabled && tripCode) {
+      getSharedState(tripCode).then(function (state) {
+        if (state) applyState(state);
+        init();
+      }).catch(function () { init(); });
+    } else {
+      init();
+    }
+  })();
 })();

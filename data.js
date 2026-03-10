@@ -11,8 +11,11 @@ window.HOLIYAY_DATA = {
     endDate: "2027-01-31",
     currency: "JPY",
     defaultRateToAUD: 97, // JPY per 1 AUD – update for current rate
-    // Only people you share the password with can view the itinerary. Leave "" to show to anyone with the link.
-    accessPassword: "",
+    // Password to view the itinerary. Share this with your partner so you both use the same one (and see the same synced data).
+    accessPassword: "japan2027",
+    // Optional: shared sync so you both see the same updates. Create a free project at supabase.com, add a table (see README), then set:
+    syncSupabaseUrl: "",
+    syncSupabaseAnonKey: "",
   },
 
   /** Tentative flights (Cathay Pacific via Hong Kong) */

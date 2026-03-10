@@ -19,7 +19,29 @@ A simple, personal holiday itinerary you can use on your phone or in a browser. 
 
 To change dates, activities, or venues, edit **`data.js`**.
 
-**Who can view it:** By default anyone with the link can view the page. To restrict to people you share a password with, open `data.js`, find `accessPassword: ""`, and set it to a word or phrase you’ll share only with them (e.g. `accessPassword: "japan2027"`). They’ll see a password screen first; after entering it once per browser, they can use the itinerary as normal.
+---
+
+## Shared sync (optional)
+
+If you want you and your partner to always see the same data (dashboard paid/unpaid, amounts, exchange rate, venue picks), use a free Supabase project:
+
+1. Go to [supabase.com](https://supabase.com) and create a free account and project.
+2. In the Supabase dashboard, open **SQL Editor** and run:
+   ```sql
+   create table if not exists shared_state (
+     trip_code text primary key,
+     data jsonb default '{}',
+     updated_at timestamptz default now()
+   );
+   ```
+3. In **Settings → API** copy your **Project URL** and **anon public** key.
+4. In `data.js`, set `syncSupabaseUrl` and `syncSupabaseAnonKey` to those values (inside the `trip` object).
+
+You and your partner both use the **same password** to open the site. With sync enabled, that password also links you to the same stored state, so changes one of you makes (e.g. marking something paid or editing an amount) appear for the other after a refresh.
+
+**Password:** The site is protected with a password (set in `data.js` as `accessPassword`). Share this password with your partner so you can both open the itinerary.
+
+**Shared itinerary (same updates for both):** To have you and your partner see the same paid/unpaid toggles, amounts, exchange rate, and venue choices, set up free sync with Supabase and add your project details to `data.js` (see **Shared sync** below).
 
 ---
 
