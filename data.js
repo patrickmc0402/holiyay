@@ -62,7 +62,10 @@ window.HOLIYAY_DATA = {
     { id: "kanazawa-accom", label: "Kanazawa accommodation", bookBy: "2026-11-15", notes: "Nights 15–17" },
     { id: "sumo", label: "January Grand Sumo tickets (Ryogoku)", bookBy: "2026-12-05", notes: "On sale ~1 month before" },
     { id: "disney", label: "Tokyo DisneySea tickets", bookBy: "2026-11-30", notes: "Can book up to 2 months ahead" },
-    { id: "romancecar", label: "Romancecar Shinjuku → Hakone", bookBy: "2026-12-15", notes: "Reserve seats in advance" },
+    { id: "romancecar", label: "Romancecar Tokyo → Hakone", bookBy: "2026-12-18", notes: "10:00 JST exactly 1 month before travel (18 Jan)" },
+    { id: "shinkansen-odawara-kyoto", label: "Tokaido Shinkansen Odawara → Kyoto", bookBy: "2026-12-19", notes: "10:00 JST exactly 1 month before travel (19 Jan)" },
+    { id: "thunderbird", label: "Thunderbird Osaka → Kanazawa", bookBy: "2026-12-27", notes: "10:00 JST exactly 1 month before travel (27 Jan)" },
+    { id: "hokuriku-shinkansen", label: "Hokuriku Shinkansen Kanazawa → Tokyo", bookBy: "2026-12-30", notes: "10:00 JST exactly 1 month before travel (30 Jan)" },
     { id: "tea-ceremony", label: "Oboro Tea Ceremony (Kyoto)", bookBy: "2026-12-20", notes: "Book 2–4 weeks ahead" },
     { id: "hakone-pass", label: "Hakone Free Pass", bookBy: "2027-01-01", notes: "Buy at Odawara or online before travel" },
   ],
@@ -73,14 +76,14 @@ window.HOLIYAY_DATA = {
     notes: "Hakone Free Pass, IC card, individual Shinkansen. JR Pass would cost nearly double.",
   },
 
-  /** Estimated travel times between cities (for planning). Shown in itinerary and below. */
+  /** Estimated travel times and when booking opens. Booking opens 10:00 JST exactly 1 month before travel date. */
   travelTimes: [
-    { route: "Tokyo → Hakone", duration: "~1h 30m", how: "Romancecar" },
-    { route: "Odawara → Kyoto", duration: "~2h", how: "Shinkansen" },
-    { route: "Kyoto → Osaka", duration: "~30 min", how: "JR Kyoto Line" },
-    { route: "Osaka ↔ Nara", duration: "~45 min", how: "JR Yamatoji Line" },
-    { route: "Osaka → Kanazawa", duration: "~2h 30m", how: "Thunderbird" },
-    { route: "Kanazawa → Tokyo", duration: "~2h 30m", how: "Hokuriku Shinkansen" },
+    { route: "Tokyo → Hakone", duration: "~1h 30m", how: "Romancecar", bookingOpens: "10:00 JST exactly 1 month before travel", travelDate: "2027-01-18" },
+    { route: "Odawara → Kyoto", duration: "~2h", how: "Tokaido Shinkansen", bookingOpens: "10:00 JST exactly 1 month before travel", travelDate: "2027-01-19" },
+    { route: "Kyoto → Osaka", duration: "~30 min", how: "JR Kyoto Line", bookingOpens: "No booking required" },
+    { route: "Osaka ↔ Nara", duration: "~45 min", how: "JR Yamatoji Line", bookingOpens: "No booking required" },
+    { route: "Osaka → Kanazawa", duration: "~2h 30m", how: "Thunderbird Limited Express", bookingOpens: "10:00 JST exactly 1 month before travel", travelDate: "2027-01-27" },
+    { route: "Kanazawa → Tokyo", duration: "~2h 30m", how: "Hokuriku Shinkansen", bookingOpens: "10:00 JST exactly 1 month before travel", travelDate: "2027-01-30" },
   ],
 
   /** Venue alternatives by category – same type & area. Addresses/hours from Google; verify before travel. */

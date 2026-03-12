@@ -671,12 +671,16 @@
     const travelTimes = DATA.travelTimes || [];
     if (travelTimesEl && travelTimes.length > 0) {
       travelTimesEl.innerHTML =
-        "<p class=\"budget-travel-times-title\">Estimated travel times between cities</p>" +
+        "<p class=\"budget-travel-times-title\">Estimated travel times & when to book</p>" +
         "<ul class=\"budget-travel-times-list\">" +
         travelTimes.map(function (t) {
-          return "<li><span class=\"travel-times-route\">" + escapeHtml(t.route) + "</span> " +
+          var line = "<li><span class=\"travel-times-route\">" + escapeHtml(t.route) + "</span> " +
             "<span class=\"travel-times-duration\">" + escapeHtml(t.duration) + "</span>" +
-            (t.how ? " <span class=\"travel-times-how\">(" + escapeHtml(t.how) + ")</span>" : "") + "</li>";
+            (t.how ? " <span class=\"travel-times-how\">(" + escapeHtml(t.how) + ")</span>" : "");
+          if (t.bookingOpens) {
+            line += " <span class=\"travel-times-booking\">" + escapeHtml(t.bookingOpens) + "</span>";
+          }
+          return line + "</li>";
         }).join("") +
         "</ul>";
     }
