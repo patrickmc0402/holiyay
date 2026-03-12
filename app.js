@@ -169,16 +169,34 @@
         if (k && k.indexOf(VENUE_STORAGE_PREFIX) === 0) venues[k] = localStorage.getItem(k);
       }
     } catch (e) {}
-    var notes = "";
-    try {
-      notes = localStorage.getItem(NOTES_STORAGE_KEY) || "";
-    } catch (e) {}
+    var notes = getNotesList();
     return {
       bookables: getBookablesState(),
       rate: getStoredRate(),
       venues: venues,
       notes: notes,
     };
+  }
+
+  function getNotesList() {
+    try {
+      var raw = localStorage.getItem(NOTES_STORAGE_KEY);
+      if (raw == null || raw === "") return [];
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (typeof parsed === "string") return parsed ? [parsed] : [];
+    } catch (e) {
+      var str = localStorage.getItem(NOTES_STORAGE_KEY);
+      if (typeof str === "string" && str.length > 0) return [str];
+    }
+    return [];
+  }
+
+  function setNotesList(arr) {
+    try {
+      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(Array.isArray(arr) ? arr : []));
+    } catch (e) {}
+    saveSharedStateDebounced();
   }
 
   function applyState(state) {
@@ -197,10 +215,12 @@
           }
         }
       }
-      if (typeof state.notes === "string") {
-        localStorage.setItem(NOTES_STORAGE_KEY, state.notes);
-        var notesEl = document.getElementById("trip-notes");
-        if (notesEl) notesEl.value = state.notes;
+      if (Array.isArray(state.notes)) {
+        setNotesList(state.notes);
+        renderNotesList();
+      } else if (typeof state.notes === "string" && state.notes.length > 0) {
+        setNotesList([state.notes]);
+        renderNotesList();
       }
     } catch (e) {}
   }
@@ -313,12 +333,13 @@
     let estimatedTotal = 0;
     bookables.forEach(function (b) {
       const st = getBookableState(b.id);
-      const amount = Number(st.amount);
+      const amount = Number(st.amount) || 0;
       const est = Number(st.estimatedAmount) || 0;
+      const unpaidVal = est || amount;
       if (st.status === "paid") paidTotal += amount;
       else if (st.status === "booked") bookedTotal += amount;
-      else unpaidTotal += est;
-      estimatedTotal += (st.status === "paid" || st.status === "booked") ? amount : est;
+      else unpaidTotal += unpaidVal;
+      estimatedTotal += (st.status === "paid" || st.status === "booked") ? amount : unpaidVal;
     });
     totalsEl.innerHTML =
       "<div class=\"dashboard-totals-grid\">" +
@@ -342,12 +363,13 @@
     let estimatedTotal = 0;
     const rows = bookables.map(function (b) {
       const st = getBookableState(b.id);
-      const amount = Number(st.amount);
+      const amount = Number(st.amount) || 0;
       const est = Number(st.estimatedAmount) || 0;
+      const unpaidVal = est || amount;
       if (st.status === "paid") paidTotal += amount;
       else if (st.status === "booked") bookedTotal += amount;
-      else unpaidTotal += est;
-      estimatedTotal += (st.status === "paid" || st.status === "booked") ? amount : est;
+      else unpaidTotal += unpaidVal;
+      estimatedTotal += (st.status === "paid" || st.status === "booked") ? amount : unpaidVal;
       const statusClass = st.status === "paid" ? " is-paid" : st.status === "booked" ? " is-booked" : "";
       const estAudVal = (st.estimatedAmount == null || st.estimatedAmount === 0) ? "" : String(st.estimatedAmount);
       const estJpyVal = (st.estimatedAmount == null || st.estimatedAmount === 0) ? "" : String(audToJpy(st.estimatedAmount) != null ? audToJpy(st.estimatedAmount) : "");
@@ -477,6 +499,38 @@
     });
 
     listEl.innerHTML = parts.join("");
+  }
+
+  function renderNotesList() {
+    const listEl = document.getElementById("trip-notes-list");
+    if (!listEl) return;
+    var notes = getNotesList();
+    if (notes.length === 0) notes = [""];
+    listEl.innerHTML = notes
+      .map(function (text, i) {
+        return (
+          "<li class=\"notes-list-item\">" +
+          "<input type=\"text\" class=\"notes-item-input\" data-index=\"" + i + "\" value=\"" + escapeHtml(text) + "\" placeholder=\"e.g. Restaurant X in Kyoto, try the matcha dessert…\" />" +
+          "</li>"
+        );
+      })
+      .join("");
+  }
+
+  function onNotesListInput(e) {
+    var el = e.target;
+    if (!el || !el.classList || !el.classList.contains("notes-item-input")) return;
+    var index = parseInt(el.getAttribute("data-index"), 10);
+    if (Number.isNaN(index)) return;
+    var notes = getNotesList();
+    while (notes.length <= index) notes.push("");
+    notes[index] = el.value;
+    setNotesList(notes);
+    if (index === notes.length - 1 && String(el.value).trim().length > 0) {
+      notes.push("");
+      setNotesList(notes);
+      renderNotesList();
+    }
   }
 
   function updateConverterResult() {
@@ -895,6 +949,7 @@
     renderDashboard();
     renderFlights();
     renderBookings();
+    renderNotesList();
     renderExchange();
     renderReminders();
     renderBudget();
@@ -910,16 +965,14 @@
     document.body.addEventListener("change", onVenueSelectChange);
     document.body.addEventListener("change", onDashboardChange);
     document.body.addEventListener("input", onDashboardChange);
-    var notesEl = document.getElementById("trip-notes");
-    if (notesEl) {
-      try {
-        notesEl.value = localStorage.getItem(NOTES_STORAGE_KEY) || "";
-      } catch (e) {}
-      notesEl.addEventListener("input", function () {
-        try {
-          localStorage.setItem(NOTES_STORAGE_KEY, notesEl.value);
-        } catch (e) {}
-        saveSharedStateDebounced();
+    document.body.addEventListener("input", onNotesListInput);
+    var notesAddBtn = document.getElementById("notes-add-btn");
+    if (notesAddBtn) {
+      notesAddBtn.addEventListener("click", function () {
+        var notes = getNotesList();
+        notes.push("");
+        setNotesList(notes);
+        renderNotesList();
       });
     }
   }
