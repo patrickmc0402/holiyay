@@ -627,7 +627,39 @@ body {
 .flights-outbound,
 .flights-return {
   font-size: 0.95rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.flights-label {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.flight-block {
+  margin-bottom: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.flight-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.flight-route {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.flight-time-wrap {
+  display: block;
+}
+
+.flight-time {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
 }
 
 .flights-deals {
@@ -917,6 +949,46 @@ body {
   margin: 0 0 0.75rem;
   padding: 0.5rem 0;
   border-bottom: 1px dashed var(--border);
+}
+
+.day-flight-block {
+  margin-bottom: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  background: #f8f6f3;
+}
+
+.day-flight-block-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 0.35rem;
+}
+
+.day-flight-route {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.2rem;
+}
+
+.day-flight-times,
+.day-flight-segment {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin: 0 0 0.35rem;
+}
+
+.day-flight-segment:last-child {
+  margin-bottom: 0;
+}
+
+.day-departure .day-flight-segment + .day-flight-segment {
+  margin-top: 0.4rem;
 }
 
 .day-block {

@@ -24,15 +24,15 @@ window.HOLIYAY_DATA = {
     { label: "Shirayunoyado Yamadaya Hakone Gora", dates: "18 Jan – 19 Jan 2027", amount: 45900, currency: "JPY" },
   ],
 
-  /** Tentative flights (Cathay Pacific via Hong Kong) */
+  /** Tentative flights (Cathay Pacific via Hong Kong). Times local to each airport. */
   flights: {
     outbound: [
-      { flight: "CX178", route: "Australia → Hong Kong" },
-      { flight: "CX548", route: "Hong Kong → Tokyo Haneda" },
+      { flight: "CX178", route: "Melbourne → Hong Kong", dep: "00:45", depCity: "Melbourne", arr: "06:45", arrCity: "Hong Kong", duration: "~9h" },
+      { flight: "CX548", route: "Hong Kong → Tokyo Haneda", dep: "08:55", depCity: "Hong Kong", arr: "13:45", arrCity: "Tokyo Haneda", duration: "~3h 50m" },
     ],
     return: [
-      { flight: "CX521", route: "Tokyo Haneda → Hong Kong" },
-      { flight: "CX105", route: "Hong Kong → Australia" },
+      { flight: "CX521", route: "Tokyo Haneda → Hong Kong", dep: "16:20", depCity: "Tokyo Haneda", arr: "20:05", arrCity: "Hong Kong", duration: "~4h" },
+      { flight: "CX105", route: "Hong Kong → Melbourne", dep: "00:30", depCity: "Hong Kong", arr: "12:30", arrCity: "Melbourne", duration: "~9h" },
     ],
     dealsNote: "Virgin Velocity: CommBank Awards points transfer to Velocity (1:0.4 standard, 1:0.5 premium cards). Check velocityfrequentflyer.com for partner redemptions. Cathay may be bookable with points via Velocity partners or compare cash fares.",
   },
@@ -136,6 +136,7 @@ window.HOLIYAY_DATA = {
       title: "Tokyo arrival",
       location: "Tokyo",
       hotel: "Hotel Sunroute Plaza Shinjuku",
+      arrivalFlight: { flight: "CX548", route: "Hong Kong → Tokyo Haneda", arr: "13:45", arrCity: "Tokyo Haneda", duration: "~3h 50m" },
       morning: [],
       afternoon: [],
       evening: [
@@ -375,6 +376,10 @@ window.HOLIYAY_DATA = {
       afternoon: [],
       evening: [],
       night: [],
+      departureFlights: [
+        { flight: "CX521", route: "Tokyo Haneda → Hong Kong", dep: "16:20", depCity: "Tokyo Haneda", arr: "20:05", arrCity: "Hong Kong", duration: "~4h" },
+        { flight: "CX105", route: "Hong Kong → Melbourne", dep: "00:30", depCity: "Hong Kong", arr: "12:30", arrCity: "Melbourne", duration: "~9h" },
+      ],
       costJpy: null,
     },
   ],

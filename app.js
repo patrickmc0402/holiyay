@@ -557,11 +557,30 @@
     const outEl = document.getElementById("flights-outbound");
     const retEl = document.getElementById("flights-return");
     const dealsEl = document.getElementById("flights-deals");
+    function flightTimeHtml(f) {
+      if (f.dep && f.arr) {
+        var depStr = "Dep " + escapeHtml(f.dep) + (f.depCity ? " (" + escapeHtml(f.depCity) + ")" : "");
+        var arrStr = "Arr " + escapeHtml(f.arr) + (f.arrCity ? " (" + escapeHtml(f.arrCity) + ")" : "");
+        var durStr = f.duration ? " · " + escapeHtml(f.duration) : "";
+        return "<span class=\"flight-time\">" + depStr + " · " + arrStr + durStr + "</span>";
+      }
+      if (f.time) return "<span class=\"flight-time\">" + escapeHtml(f.time) + "</span>";
+      return "";
+    }
+    function flightBlock(f) {
+      var timeHtml = flightTimeHtml(f);
+      return (
+        "<div class=\"flight-block\">" +
+        "<span class=\"flight-route\">" + escapeHtml(f.flight) + " " + escapeHtml(f.route) + "</span>" +
+        (timeHtml ? "<span class=\"flight-time-wrap\">" + timeHtml + "</span>" : "") +
+        "</div>"
+      );
+    }
     if (outEl && flights.outbound) {
-      outEl.innerHTML = "<strong>Outbound</strong>: " + flights.outbound.map(function (f) { return f.flight + " " + f.route; }).join(" → ");
+      outEl.innerHTML = "<strong class=\"flights-label\">Outbound</strong>" + flights.outbound.map(flightBlock).join("");
     }
     if (retEl && flights.return) {
-      retEl.innerHTML = "<strong>Return</strong>: " + flights.return.map(function (f) { return f.flight + " " + f.route; }).join(" → ");
+      retEl.innerHTML = "<strong class=\"flights-label\">Return</strong>" + flights.return.map(flightBlock).join("");
     }
     if (dealsEl && flights.dealsNote) {
       dealsEl.textContent = flights.dealsNote;
@@ -769,6 +788,34 @@
         let hotelHtml = "";
         if (day.hotel) hotelHtml = '<p class="day-hotel">Hotel: ' + escapeHtml(day.hotel) + "</p>";
 
+        let arrivalHtml = "";
+        if (day.arrivalFlight) {
+          const af = day.arrivalFlight;
+          arrivalHtml =
+            '<div class="day-flight-block day-arrival">' +
+            '<p class="day-flight-block-title">Arrival</p>' +
+            '<p class="day-flight-route">' + escapeHtml(af.flight) + " " + escapeHtml(af.route) + "</p>" +
+            '<p class="day-flight-times">Arr ' + escapeHtml(af.arr) + (af.arrCity ? " (" + escapeHtml(af.arrCity) + ")" : "") + (af.duration ? " · " + escapeHtml(af.duration) : "") + "</p>" +
+            "</div>";
+        }
+
+        let departureHtml = "";
+        if (day.departureFlights && day.departureFlights.length > 0) {
+          departureHtml =
+            '<div class="day-flight-block day-departure">' +
+            '<p class="day-flight-block-title">Departure</p>' +
+            day.departureFlights.map(function (df) {
+              var line = escapeHtml(df.flight) + " " + escapeHtml(df.route);
+              var times = [];
+              if (df.dep) times.push("Dep " + escapeHtml(df.dep) + (df.depCity ? " (" + escapeHtml(df.depCity) + ")" : ""));
+              if (df.arr) times.push("Arr " + escapeHtml(df.arr) + (df.arrCity ? " (" + escapeHtml(df.arrCity) + ")" : ""));
+              if (df.duration) times.push(escapeHtml(df.duration));
+              if (times.length) line += " — " + times.join(" · ");
+              return "<p class=\"day-flight-segment\">" + line + "</p>";
+            }).join("") +
+            "</div>";
+        }
+
         const blocks = [];
         ["morning", "afternoon", "evening", "night"].forEach(function (slot) {
           const items = day[slot];
@@ -821,7 +868,9 @@
           "</div>" +
           '<div class="day-body">' +
           hotelHtml +
+          arrivalHtml +
           blocks.join("") +
+          departureHtml +
           notesHtml +
           costHtml +
           "</div>" +
