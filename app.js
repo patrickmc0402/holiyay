@@ -284,6 +284,16 @@
     return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
   }
 
+  function formatDayOfWeek(iso) {
+    const d = new Date(iso + "T12:00:00");
+    return d.toLocaleDateString("en-AU", { weekday: "long" });
+  }
+
+  function formatShortDayOfWeek(iso) {
+    const d = new Date(iso + "T12:00:00");
+    return d.toLocaleDateString("en-AU", { weekday: "short" });
+  }
+
   function daysFromToday(iso) {
     const d = new Date(iso + "T12:00:00");
     const t = new Date();
@@ -303,10 +313,12 @@
     let estimatedTotal = 0;
     bookables.forEach(function (b) {
       const st = getBookableState(b.id);
-      if (st.status === "paid") paidTotal += st.amount;
-      else if (st.status === "booked") bookedTotal += st.amount;
-      else unpaidTotal += st.amount;
-      estimatedTotal += st.estimatedAmount || 0;
+      const amount = Number(st.amount);
+      const est = Number(st.estimatedAmount) || 0;
+      if (st.status === "paid") paidTotal += amount;
+      else if (st.status === "booked") bookedTotal += amount;
+      else unpaidTotal += est;
+      estimatedTotal += (st.status === "paid" || st.status === "booked") ? amount : est;
     });
     totalsEl.innerHTML =
       "<div class=\"dashboard-totals-grid\">" +
@@ -330,10 +342,12 @@
     let estimatedTotal = 0;
     const rows = bookables.map(function (b) {
       const st = getBookableState(b.id);
-      if (st.status === "paid") paidTotal += st.amount;
-      else if (st.status === "booked") bookedTotal += st.amount;
-      else unpaidTotal += st.amount;
-      estimatedTotal += st.estimatedAmount || 0;
+      const amount = Number(st.amount);
+      const est = Number(st.estimatedAmount) || 0;
+      if (st.status === "paid") paidTotal += amount;
+      else if (st.status === "booked") bookedTotal += amount;
+      else unpaidTotal += est;
+      estimatedTotal += (st.status === "paid" || st.status === "booked") ? amount : est;
       const statusClass = st.status === "paid" ? " is-paid" : st.status === "booked" ? " is-booked" : "";
       const estAudVal = (st.estimatedAmount == null || st.estimatedAmount === 0) ? "" : String(st.estimatedAmount);
       const estJpyVal = (st.estimatedAmount == null || st.estimatedAmount === 0) ? "" : String(audToJpy(st.estimatedAmount) != null ? audToJpy(st.estimatedAmount) : "");
@@ -426,24 +440,43 @@
   function renderBookings() {
     const listEl = document.getElementById("bookings-list");
     if (!listEl) return;
-    const bookings = DATA.bookingsSoFar || [];
     const r = getStoredRate();
-    listEl.innerHTML = bookings
-      .map(function (b) {
-        const isAud = b.currency === "AUD";
-        const amount = Number(b.amount);
-        const other = isAud ? audToJpy(amount) : (amount / r).toFixed(2);
-        const primaryStr = isAud ? "AUD $" + amount.toLocaleString() : "¥" + amount.toLocaleString();
-        const otherStr = isAud ? "≈ ¥" + (other != null ? other.toLocaleString() : "—") : "≈ AUD $" + other;
-        return (
-          "<div class=\"booking-item\">" +
-          "<strong class=\"booking-label\">" + escapeHtml(b.label) + "</strong>" +
-          "<span class=\"booking-dates\">" + escapeHtml(b.dates || "") + "</span>" +
-          "<span class=\"booking-amount\">" + primaryStr + " <span class=\"booking-other\">" + otherStr + "</span></span>" +
-          "</div>"
-        );
-      })
-      .join("");
+    const parts = [];
+
+    (DATA.bookingsSoFar || []).forEach(function (b) {
+      const isAud = b.currency === "AUD";
+      const amount = Number(b.amount);
+      const other = isAud ? audToJpy(amount) : (amount / r).toFixed(2);
+      const primaryStr = isAud ? "AUD $" + amount.toLocaleString() : "¥" + amount.toLocaleString();
+      const otherStr = isAud ? "≈ ¥" + (other != null ? other.toLocaleString() : "—") : "≈ AUD $" + other;
+      parts.push(
+        "<div class=\"booking-item\">" +
+        "<strong class=\"booking-label\">" + escapeHtml(b.label) + "</strong>" +
+        "<span class=\"booking-dates\">" + escapeHtml(b.dates || "") + "</span>" +
+        "<span class=\"booking-amount\">" + primaryStr + " <span class=\"booking-other\">" + otherStr + "</span></span>" +
+        "</div>"
+      );
+    });
+
+    (DATA.bookables || []).forEach(function (b) {
+      const st = getBookableState(b.id);
+      if (st.status !== "paid" && st.status !== "booked") return;
+      const amount = Number(st.amount) || 0;
+      if (amount <= 0) return;
+      const jpy = audToJpy(amount);
+      const primaryStr = "AUD $" + (amount % 1 === 0 ? String(amount) : amount.toFixed(2)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      const otherStr = "≈ ¥" + (jpy != null ? jpy.toLocaleString() : "—");
+      const statusLabel = st.status === "paid" ? "Paid" : "Booked (not paid)";
+      parts.push(
+        "<div class=\"booking-item booking-from-dashboard\">" +
+        "<strong class=\"booking-label\">" + escapeHtml(b.label) + "</strong>" +
+        "<span class=\"booking-dates\">" + escapeHtml(statusLabel) + "</span>" +
+        "<span class=\"booking-amount\">" + primaryStr + " <span class=\"booking-other\">" + otherStr + "</span></span>" +
+        "</div>"
+      );
+    });
+
+    listEl.innerHTML = parts.join("");
   }
 
   function updateConverterResult() {
@@ -608,6 +641,25 @@
     return "sightsee";
   }
 
+  function getActivityIcon(type) {
+    if (!type) return "•";
+    const t = type.toLowerCase();
+    if (t.indexOf("train") !== -1 || t.indexOf("shinkansen") !== -1) return "🚄";
+    if (t.indexOf("plane") !== -1 || t.indexOf("flight") !== -1) return "✈️";
+    if (t.indexOf("bus") !== -1) return "🚌";
+    if (t.indexOf("dinner") !== -1 || t.indexOf("food") !== -1 || t.indexOf("market") !== -1 || t.indexOf("eating") !== -1) return "🍽️";
+    if (t.indexOf("temple") !== -1 || t.indexOf("shrine") !== -1 || t.indexOf("tea ceremony") !== -1 || t.indexOf("sake") !== -1 || t.indexOf("garden") !== -1) return "⛩️";
+    if (t.indexOf("venue") !== -1 || t.indexOf("event") !== -1) return "🎭";
+    if (t.indexOf("walk") !== -1 || t.indexOf("visit") !== -1 || t.indexOf("see") !== -1 || t.indexOf("arrive") !== -1) return "🚶";
+    if (t.indexOf("hotel") !== -1 || t.indexOf("onsen") !== -1) return "🏨";
+    if (t.indexOf("shopping") !== -1 || t.indexOf("record store") !== -1 || t.indexOf("denim") !== -1 || t.indexOf("area") !== -1 || t.indexOf("district") !== -1) return "🛍️";
+    if (t.indexOf("bar") !== -1 || t.indexOf("soul") !== -1 || t.indexOf("vinyl") !== -1 || t.indexOf("night") !== -1) return "🍸";
+    if (t.indexOf("relax") !== -1 || t.indexOf("optional") !== -1 || t.indexOf("easy pace") !== -1) return "☕";
+    if (t.indexOf("park") !== -1) return "🎢";
+    if (t.indexOf("activities") !== -1) return "📋";
+    return "•";
+  }
+
   function getVenueCategory(categoryId) {
     return (DATA.venueCategories || []).find(function (c) { return c.id === categoryId; });
   }
@@ -636,8 +688,10 @@
       "<p class=\"venue-verify\"><a href=\"" + googleUrl + "\" target=\"_blank\" rel=\"noopener\">Verify address & hours on Google</a></p>" +
       "</div>";
     const activitySlug = cat.id.indexOf("restaurant") !== -1 ? "food" : "nightlife";
+    const icon = getActivityIcon(item.type || "Venue");
     return (
-      "<li class=\"day-block-item-venue activity activity-" + activitySlug + "\">" +
+      "<li class=\"day-block-item-venue activity activity-" + activitySlug + " has-icon\">" +
+      "<span class=\"activity-icon\" aria-hidden=\"true\">" + icon + "</span>" +
       "<span class=\"venue-type\">" + escapeHtml(item.type || "Venue") + ":</span> " +
       selectHtml +
       detailsHtml +
@@ -649,11 +703,15 @@
     const container = document.getElementById("day-list");
     if (!container) return;
     const r = getStoredRate();
+    const totalDays = (DATA.days || []).length;
 
     container.innerHTML = DATA.days
       .map(function (day) {
         const dateStr = formatDate(day.date);
         const shortDate = formatShortDate(day.date);
+        const dayOfWeek = formatDayOfWeek(day.date);
+        const shortDayOfWeek = formatShortDayOfWeek(day.date);
+        const location = day.location ? escapeHtml(day.location) : "";
         let hotelHtml = "";
         if (day.hotel) hotelHtml = '<p class="day-hotel">Hotel: ' + escapeHtml(day.hotel) + "</p>";
 
@@ -661,7 +719,6 @@
         ["morning", "afternoon", "evening", "night"].forEach(function (slot) {
           const items = day[slot];
           if (!items || !items.length) return;
-          const title = slot.charAt(0).toUpperCase() + slot.slice(1);
           const slotClass = "day-slot-" + slot;
           const slotLabel = slot === "morning" ? "Morning" : slot === "afternoon" ? "Afternoon" : slot === "evening" ? "Evening" : "Night";
           const list = items
@@ -670,9 +727,10 @@
                 return buildVenueItemHtml(day.day, slot, index, item);
               }
               const slug = getActivitySlug(item.type);
+              const icon = getActivityIcon(item.type);
               const label = item.type ? item.type + ": " : "";
               const travelTimeHtml = item.travelTime ? " <span class=\"travel-time\">" + escapeHtml(item.travelTime) + "</span>" : "";
-              return "<li class=\"activity activity-" + slug + "\">" + escapeHtml(label) + escapeHtml(item.text) + travelTimeHtml + "</li>";
+              return "<li class=\"activity activity-" + slug + " has-icon\"><span class=\"activity-icon\" aria-hidden=\"true\">" + icon + "</span>" + escapeHtml(label) + escapeHtml(item.text) + travelTimeHtml + "</li>";
             })
             .join("");
           blocks.push('<div class="day-block ' + slotClass + '"><p class="day-block-title">' + slotLabel + "</p><ul class=\"day-block-items\">" + list + "</ul></div>");
@@ -695,11 +753,16 @@
             "</div>";
         }
 
+        const journeyLabel = totalDays > 0 ? "Day " + day.day + " of " + totalDays : "Day " + day.day;
+        const metaParts = [shortDayOfWeek + " " + shortDate];
+        if (location) metaParts.push(location);
+        const metaStr = metaParts.join(" · ");
+
         return (
           '<article class="day-card" data-day="' + day.day + '">' +
           '<div class="day-header">' +
-          '<span class="day-number">Day ' + day.day + "</span>" +
-          '<span class="day-date">' + shortDate + "</span>" +
+          '<span class="day-journey">' + journeyLabel + "</span>" +
+          '<span class="day-meta">' + metaStr + "</span>" +
           '<h3 class="day-title">' + escapeHtml(day.title) + "</h3>" +
           "</div>" +
           '<div class="day-body">' +
@@ -751,6 +814,7 @@
       }
       updateDashboardTotalsOnly();
       renderReminders();
+      renderBookings();
       return;
     }
     var r = getStoredRate();
@@ -771,6 +835,7 @@
         }
       }
       updateDashboardTotalsOnly();
+      renderBookings();
     }
     if (el.classList && el.classList.contains("dashboard-est-aud")) {
       var num = parseFloat(String(el.value).replace(",", "."), 10);
